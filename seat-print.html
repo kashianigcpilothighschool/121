@@ -5,16 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>সিট প্লান প্রিন্ট</title>
 <style>
-  /* ফন্ট: কালপুরুষ (kalpurush.woff2 ফাইল এই HTML-এর পাশে থাকতে হবে) */
-  @font-face { font-family:'Kalpurush'; src:url('kalpurush.woff2') format('woff2'), url('kalpurush.woff') format('woff'); font-weight:400; font-display:swap; }
-  /* সোলিমানি লিপি: কম্পিউটারে ইনস্টল থাকলে অথবা SolaimanLipi.ttf ফাইল পাশে রাখলে কাজ করবে */
-  @font-face { font-family:'SolaimanLipi'; src:local('SolaimanLipi'), local('Solaiman Lipi'), url('SolaimanLipi.ttf') format('truetype'); font-weight:400; }
+  /* ফন্ট: সোলিমান লিপি (প্রধান), কালপুরুষ (বিকল্প) — সরাসরি CDN থেকে */
+  @font-face { font-family:'SolaimanLipi'; src:local('SolaimanLipi'), local('Solaiman Lipi'), url('https://cdn.jsdelivr.net/npm/@hixbe/solaiman-lipi@5.2.5/files/solaiman-lipi.woff2') format('woff2'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'Kalpurush'; src:url('https://cdn.jsdelivr.net/npm/@hixbe/kalpurush@5.2.5/files/kalpurush.woff2') format('woff2'); font-weight:400; font-display:swap; }
   :root { --navy:#1D2B4F; --gold:#B9822E; --band:#DCEFDC; --cream:#FFF2CC; --sky:#DDEBF7; }
   * { box-sizing: border-box; }
-  body { font-family:'Kalpurush','SolaimanLipi','Noto Sans Bengali',sans-serif; margin:0; background:#EEF1F8; color:#000; }
+  body { font-family:'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif; margin:0; background:#EEF1F8; color:#000; }
 
   /* ---- টুলবার (প্রিন্টে দেখাবে না) ---- */
-  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'Kalpurush','SolaimanLipi',sans-serif; }
+  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'SolaimanLipi','Kalpurush',sans-serif; }
   .toolbar select, .toolbar button { font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:none; }
   .toolbar button { background:var(--gold); color:#fff; font-weight:600; cursor:pointer; }
   .toolbar button.alt { background:#fff; color:var(--navy); }

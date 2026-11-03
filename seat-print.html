@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>সিট প্লান প্রিন্ট</title>
+<style id="pageSize"></style>
 <style>
   /* ফন্ট: সোলিমান লিপি (প্রধান), কালপুরুষ (বিকল্প) — সরাসরি CDN থেকে */
   @font-face { font-family:'SolaimanLipi'; src:local('SolaimanLipi'), local('Solaiman Lipi'), url('https://cdn.jsdelivr.net/npm/@hixbe/solaiman-lipi@5.2.5/files/solaiman-lipi.woff2') format('woff2'); font-weight:400; font-display:swap; }
@@ -20,7 +21,7 @@
   #msg { padding:30px; text-align:center; }
 
   /* ---- Legal পাতা (পুরোনো PDF-এর মাপ: 8.5in x 14in) ---- */
-  .page { background:#fff; width:8.5in; min-height:14in; margin:16px auto; padding:0.25in 0.3in; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
+  .page { background:#fff; width:var(--pw,8.5in); min-height:var(--ph,14in); margin:16px auto; padding:0.25in 0.3in; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
   .page.hidden { display:none; }
   .page { line-height:1.05; }
 
@@ -62,14 +63,7 @@
   table.seat td.blank { border-bottom-color:#eee; }
   table.seat td.door { vertical-align:middle; padding-bottom:0; background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
 
-  /* ৩ জোড়া কলাম = Legal পাতা, ২ জোড়া কলাম = A4 পাতা */
-  .page.two { width:210mm; min-height:297mm; page:two; }
-  .page.three { page:three; }
-  table.seat.two td { height:10mm; font-size:22pt; }
-  table.seat.two td.g { width:auto; }
-  @page three { size:8.5in 14in; margin:0; }
-  @page two { size:A4 portrait; margin:0; }
-  @page { size:8.5in 14in; margin:0; }
+  /* কাগজের মাপ টুলবারের ড্রপডাউন থেকে JS দিয়ে বসে (নিচের #pageSize স্টাইল) */
   @media print {
     body { background:#fff; }
     .toolbar, #msg { display:none !important; }
@@ -83,8 +77,15 @@
 
 <div class="toolbar">
   <select id="roomSelect"></select>
+  <select id="paperSelect" title="কাগজের মাপ">
+    <option value="legal">কাগজ: Legal (8.5×14 ইঞ্চি)</option>
+    <option value="a4">কাগজ: A4 (8.27×11.69 ইঞ্চি)</option>
+    <option value="letter">কাগজ: Letter (8.5×11 ইঞ্চি)</option>
+    <option value="folio">কাগজ: Folio (8.5×13 ইঞ্চি)</option>
+  </select>
   <button onclick="window.print()">🖨️ প্রিন্ট করুন</button>
-  <button class="alt" onclick="showAll()">সব কক্ষ একসাথে</button>
+  <button class="alt" id="btnTwo" onclick="printType('two')">২ কলাম প্রিন্ট</button>
+  <button class="alt" id="btnThree" onclick="printType('three')">৩ কলাম প্রিন্ট</button>
   <button class="alt" onclick="window.location.href='seat-plan.html'">← ফিরে যান</button>
 </div>
 
@@ -128,6 +129,27 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const ms = p => (p.updatedAt && p.updatedAt.toMillis) ? p.updatedAt.toMillis() : 0;
 const floorText = f => { const t = String(f || '').trim(); return t === 'নিচতলা' ? 'নিচ তলা' : t; };
 
+// ---- কাগজের মাপ (পছন্দমতো) ----
+const PAPERS = { legal:['8.5in','14in'], a4:['210mm','297mm'], letter:['8.5in','11in'], folio:['8.5in','13in'] };
+function applyPaper(key) {
+  const [w, h] = PAPERS[key] || PAPERS.legal;
+  document.documentElement.style.setProperty('--pw', w);
+  document.documentElement.style.setProperty('--ph', h);
+  document.getElementById('pageSize').textContent = `@page { size:${w} ${h}; margin:0; }`;
+}
+(function initPaper() {
+  const sel = document.getElementById('paperSelect');
+  let saved = 'legal';
+  try { saved = localStorage.getItem('paperSize') || 'legal'; } catch (_) {}
+  if (!PAPERS[saved]) saved = 'legal';
+  sel.value = saved;
+  applyPaper(saved);
+  sel.addEventListener('change', () => {
+    applyPaper(sel.value);
+    try { localStorage.setItem('paperSize', sel.value); } catch (_) {}
+  });
+})();
+
 let plans = [];
 
 onAuthStateChanged(auth, async (user) => {
@@ -168,6 +190,8 @@ async function loadPlans() {
   sel.addEventListener('change', () => showOne(sel.value));
 
   document.getElementById('sheets').innerHTML = plans.map(renderPlan).join('');
+  document.getElementById('btnTwo').textContent = '২ কলাম প্রিন্ট - ' + bn(document.querySelectorAll('.page.two').length) + ' কক্ষ';
+  document.getElementById('btnThree').textContent = '৩ কলাম প্রিন্ট - ' + bn(document.querySelectorAll('.page.three').length) + ' কক্ষ';
 
   const wanted = new URLSearchParams(location.search).get('room');
   const start = plans.find(p => p.id === wanted) ? wanted : latestId;
@@ -178,6 +202,20 @@ async function loadPlans() {
 function showOne(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('hidden', p.dataset.id !== id));
 }
+// নির্দিষ্ট ধরনের (২ বা ৩ কলাম) সব কক্ষ একসাথে প্রিন্ট
+window.printType = function (type) {
+  const pages = document.querySelectorAll('.page.' + type);
+  if (pages.length === 0) {
+    alert(type === 'two' ? 'কোনো ২ কলামের কক্ষ নেই।' : 'কোনো ৩ কলামের কক্ষ নেই।');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('hidden', !p.classList.contains(type)));
+  window.print();
+};
+window.addEventListener('afterprint', () => {
+  const sel = document.getElementById('roomSelect');
+  if (sel && sel.value) showOne(sel.value);
+});
 window.showAll = function () {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('hidden'));
 };
@@ -197,6 +235,8 @@ function renderPlan(p) {
   });
   // সারি = সবচেয়ে লম্বা কলামের সিট সংখ্যা (প্রতি সারি = এক জোড়া সিট)
   const rows = Math.max(...seatsByCol.map(s => s.length)) || (r.benchCount || 0);
+  // প্রতি কলাম নিচ থেকে মেলানো: কম সিটের কলামের উপরে ফাঁকা সারি বসবে
+  seatsByCol.forEach(col => { while (col.length < rows) col.unshift(null); });
   // মাঝের জোড়ায় (F, G) কোনো রোল না থাকলে ২ কলাম, থাকলে ৩ কলাম
   const two = !seatsByCol[2].some(Boolean) && !seatsByCol[3].some(Boolean);
   const use = two ? [0, 1, 4, 5] : [0, 1, 2, 3, 4, 5];
@@ -255,7 +295,7 @@ function renderPlan(p) {
     </table>
     <div class="total">মোট: ${totalStu} জন</div>
 
-    <table class="seat ${two ? 'two' : ''}">${two ? '<colgroup><col style="width:15%"><col style="width:15%"><col style="width:40%"><col style="width:15%"><col style="width:15%"></colgroup>' : ''}${body}</table>
+    <table class="seat ${two ? 'two' : ''}">${two ? '<colgroup><col style="width:17%"><col style="width:17%"><col style="width:32%"><col style="width:17%"><col style="width:17%"></colgroup>' : ''}${body}</table>
   </div>`;
 }
 </script>

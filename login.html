@@ -1,97 +1,109 @@
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import {
-    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    sendPasswordResetEmail, signOut, deleteUser
-  } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+           signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+           from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-  // ===== কনফিগারেশন =====
+  // ===== Config: এখানে নিজের Firebase config বসান =====
   const firebaseConfig = {
-    apiKey: "AIzaSyBEK87giX4dJunYNjD6aH6VYXQ5IaCVgx8",
+    apiKey: "YOUR_API_KEY",
     authDomain: "ssc-seat-plan.firebaseapp.com",
     projectId: "ssc-seat-plan",
-    storageBucket: "ssc-seat-plan.firebasestorage.app",
-    messagingSenderId: "56229919406",
-    appId: "1:56229919406:web:1b33d7f269214d03efcb3f"
+    storageBucket: "ssc-seat-plan.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
-  const NEXT_PAGE = "seat-plan.html";
+  const SEAT_PLAN_PAGE = "seat-plan.html";
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // ===== ইউটিলিটি =====
-  function showError(id, msg) {
-    const el = document.getElementById(id);
-    el.textContent = msg; el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 6000);
+  // ---------- সাধারণ ইউটিলিটি ----------
+  function authMessage(err) {
+    const map = {
+      "auth/invalid-credential": "ইমেইল বা পাসওয়ার্ড ভুল।",
+      "auth/invalid-email": "ইমেইল ঠিকানাটি সঠিক নয়।",
+      "auth/user-not-found": "এই ইমেইলে কোনো অ্যাকাউন্ট নেই।",
+      "auth/wrong-password": "পাসওয়ার্ড ভুল।",
+      "auth/email-already-in-use": "এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।",
+      "auth/weak-password": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+      "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে, কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+      "auth/network-request-failed": "ইন্টারনেট সংযোগ পরীক্ষা করুন।",
+      "permission-denied": "অনুমতি নেই। Firestore Rules পরীক্ষা করুন।"
+    };
+    return map[err.code] || ("ত্রুটি: " + (err.message || err));
   }
-  function showInfo(id, msg) {
-    const el = document.getElementById(id);
-    el.textContent = msg; el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 7000);
-  }
+
   function setLoading(btn, on) {
     btn.disabled = on;
     btn.querySelector('.btn-text').style.display = on ? 'none' : 'block';
     btn.querySelector('.loading').style.display = on ? 'flex' : 'none';
   }
+
+  function showError(id, message) {
+    const el = document.getElementById(id);
+    el.textContent = message;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  function showInfo(id, message) {
+    const el = document.getElementById(id);
+    el.textContent = message;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 6000);
+  }
+
   function showSuccess() {
     const s = document.getElementById('successAnimation');
     s.style.display = 'flex';
     setTimeout(() => { s.style.display = 'none'; }, 2000);
   }
-  function authMessage(err) {
-    const map = {
-      'auth/invalid-credential': 'ইমেইল বা পাসওয়ার্ড ভুল।',
-      'auth/invalid-email': 'ইমেইল ঠিকানা সঠিক নয়।',
-      'auth/user-not-found': 'এই ইমেইলে কোনো অ্যাকাউন্ট নেই।',
-      'auth/email-already-in-use': 'এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।',
-      'auth/weak-password': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।',
-      'auth/too-many-requests': 'অনেকবার চেষ্টা করা হয়েছে, কিছুক্ষণ পর আবার চেষ্টা করুন।',
-      'auth/network-request-failed': 'ইন্টারনেট সংযোগ পরীক্ষা করুন।'
-    };
-    return map[err.code] || (err.code ? 'ত্রুটি: ' + err.code : (err.message || 'অজানা ত্রুটি'));
-  }
 
-  // ===== পেজ/স্টেপ নিয়ন্ত্রণ =====
-  function updateCardWidth(stepId) {
-    document.getElementById('mainCard').style.maxWidth = (stepId === 'signupStep') ? '560px' : '460px';
-  }
-  window.goToStep = function (stepId) {
-    document.getElementById('loginStep').style.display = 'none';
-    document.querySelectorAll('.step-container').forEach(el => {
-      el.style.display = 'none'; el.classList.remove('active');
-    });
-    const t = document.getElementById(stepId);
-    t.style.display = 'block'; t.classList.add('active');
-    updateCardWidth(stepId);
-  };
-  window.backToLogin = function () {
-    document.querySelectorAll('.step-container').forEach(el => {
-      el.style.display = 'none'; el.classList.remove('active');
-    });
-    document.getElementById('loginStep').style.display = 'block';
-    updateCardWidth('loginStep');
-  };
   window.togglePassword = function (inputId, toggleEl) {
     const input = document.getElementById(inputId);
     if (input.type === 'password') { input.type = 'text'; toggleEl.textContent = '🙈'; }
     else { input.type = 'password'; toggleEl.textContent = '👁️'; }
   };
 
-  // ===== ক্লাস/শাখা ড্রপডাউন =====
+  function updateCardWidth(stepId) {
+    document.getElementById('mainCard').style.maxWidth = (stepId === 'signupStep') ? '560px' : '460px';
+  }
+
+  window.goToStep = function (stepId) {
+    document.getElementById('loginStep').style.display = 'none';
+    document.querySelectorAll('.step-container').forEach(el => {
+      el.style.display = 'none';
+      el.classList.remove('active');
+    });
+    const target = document.getElementById(stepId);
+    target.style.display = 'block';
+    target.classList.add('active');
+    updateCardWidth(stepId);
+  };
+
+  window.backToLogin = function () {
+    document.querySelectorAll('.step-container').forEach(el => {
+      el.style.display = 'none';
+      el.classList.remove('active');
+    });
+    document.getElementById('loginStep').style.display = 'block';
+    updateCardWidth('loginStep');
+  };
+
+  // ---------- ক্লাস/শাখা মাল্টি-সিলেক্ট ----------
   window.toggleClassDropdown = function (e) {
     e.stopPropagation();
     document.getElementById('classMultiselect').classList.toggle('open');
   };
+
   document.addEventListener('click', function (e) {
     const dd = document.getElementById('classMultiselect');
     if (dd && dd.classList.contains('open') && !dd.contains(e.target)) dd.classList.remove('open');
   });
+
   function updateClassLabel() {
     const selected = Array.from(document.querySelectorAll('.classAccessBox:checked'));
     const label = document.getElementById('classLabel');
@@ -100,103 +112,109 @@
       label.classList.add('placeholder');
     } else {
       const names = selected.map(cb => cb.parentElement.textContent.trim());
-      label.textContent = selected.length === 1 ? names[0] : `${selected.length} টি শ্রেণি/শাখা নির্বাচিত`;
+      label.textContent = (selected.length === 1) ? names[0] : `${selected.length} টি শ্রেণি/শাখা নির্বাচিত`;
       label.classList.remove('placeholder');
     }
   }
   document.querySelectorAll('.classAccessBox').forEach(cb => cb.addEventListener('change', updateClassLabel));
 
-  // ===== লগইন =====
-  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+  // ---------- লগইন ----------
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const btn = document.getElementById('loginBtn');
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const btn = document.getElementById("loginBtn");
     setLoading(btn, true);
 
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      const snap = await getDoc(doc(db, 'users', cred.user.uid));
+      const snap = await getDoc(doc(db, "users", cred.user.uid));
 
       if (!snap.exists()) {
         await signOut(auth);
-        showError('loginError', '❌ আপনার অ্যাকাউন্টের তথ্য পাওয়া যায়নি। অ্যাডমিনের সাথে যোগাযোগ করুন।');
-      } else if (snap.data().status !== 'active') {
-        await signOut(auth);
-        showError('loginError', '⏳ আপনার অ্যাকাউন্ট এখনো অনুমোদিত হয়নি। অনুমোদনের জন্য অপেক্ষা করুন।');
-      } else {
-        showSuccess();
-        setTimeout(() => { window.location.href = NEXT_PAGE; }, 1000);
+        showError('loginError', "❌ অ্যাকাউন্টের তথ্য পাওয়া যায়নি। Admin-এর সাথে যোগাযোগ করুন।");
+        return;
       }
+      const status = snap.data().status;
+      if (status !== 'active') {
+        await signOut(auth);
+        showError('loginError', status === 'pending'
+          ? "⏳ আপনার অ্যাকাউন্ট এখনো অনুমোদনের অপেক্ষায় আছে।"
+          : "❌ আপনার অ্যাকাউন্ট নিষ্ক্রিয়।");
+        return;
+      }
+      showSuccess();
+      setTimeout(() => { window.location.href = SEAT_PLAN_PAGE; }, 1000);
     } catch (err) {
-      showError('loginError', '❌ ' + authMessage(err));
+      showError('loginError', authMessage(err));
     } finally {
       setLoading(btn, false);
     }
   });
 
-  // ===== সাইন আপ =====
-  document.getElementById('signupForm').addEventListener('submit', async function (e) {
+  // ---------- সাইন আপ ----------
+  document.getElementById("signupForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const name = document.getElementById('signupName').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const mobile = document.getElementById('signupMobile').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const confirm = document.getElementById('signupConfirmPassword').value;
-    const classAccess = Array.from(document.querySelectorAll('.classAccessBox:checked')).map(cb => cb.value);
+    const name = document.getElementById("signupName").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const mobile = document.getElementById("signupMobile").value.trim();
+    const password = document.getElementById("signupPassword").value;
+    const confirmPassword = document.getElementById("signupConfirmPassword").value;
+    const selectedClasses = Array.from(document.querySelectorAll('.classAccessBox:checked')).map(cb => cb.value);
 
-    if (classAccess.length === 0) return showError('signupError', 'অন্তত একটি ক্লাস/শাখা নির্বাচন করুন।');
-    if (password !== confirm) return showError('signupError', 'পাসওয়ার্ড দুটি মিলছে না।');
-    if (password.length < 6) return showError('signupError', 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');
+    if (!mobile) return showError('signupError', "মোবাইল নম্বর দিন।");
+    if (selectedClasses.length === 0) return showError('signupError', "অন্তত একটি ক্লাস/শাখা নির্বাচন করুন।");
+    if (password !== confirmPassword) return showError('signupError', "পাসওয়ার্ড দুটি মিলছে না।");
+    if (password.length < 6) return showError('signupError', "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।");
 
-    const btn = document.getElementById('signupBtn');
+    const btn = document.getElementById("signupBtn");
     setLoading(btn, true);
 
-    let cred = null;
     try {
-      cred = await createUserWithEmailAndPassword(auth, email, password);
-
-      try {
-        await setDoc(doc(db, 'users', cred.user.uid), {
-          name, email, mobile, classAccess,
-          status: 'pending',
-          role: 'user',
-          createdAt: serverTimestamp()
-        });
-      } catch (dbErr) {
-        // ডকুমেন্ট তৈরি না হলে Auth ইউজার মুছে দিন, যাতে আবার চেষ্টা করা যায়
-        try { await deleteUser(cred.user); } catch (_) {}
-        throw new Error('তথ্য সংরক্ষণ করা যায়নি। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');
-      }
-
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // Rules অনুযায়ী: status অবশ্যই 'pending', role অবশ্যই 'user'
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name: name,
+        email: email,
+        mobile: mobile,
+        classAccess: selectedClasses,
+        status: 'pending',
+        role: 'user',
+        createdAt: serverTimestamp()
+      });
       await signOut(auth);
 
       document.getElementById('signupForm').reset();
       updateClassLabel();
       document.getElementById('classMultiselect').classList.remove('open');
-      showInfo('signupInfo', '✅ অ্যাকাউন্ট তৈরির অনুরোধ পাঠানো হয়েছে। অনুমোদনের পর লগইন করতে পারবেন।');
+      showInfo('signupInfo', "✅ অ্যাকাউন্ট তৈরির অনুরোধ পাঠানো হয়েছে। Admin অনুমোদন দিলে লগইন করতে পারবেন।");
       setTimeout(() => window.backToLogin(), 3000);
     } catch (err) {
-      showError('signupError', '❌ ' + authMessage(err));
+      showError('signupError', authMessage(err));
     } finally {
       setLoading(btn, false);
     }
   });
 
-  // ===== পাসওয়ার্ড রিসেট =====
-  document.getElementById('forgotForm').addEventListener('submit', async function (e) {
+  // ---------- পাসওয়ার্ড রিসেট (Firebase email link) ----------
+  document.getElementById("forgotForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const email = document.getElementById('forgotEmail').value.trim();
-    const btn = document.getElementById('forgotBtn');
+    const email = document.getElementById("forgotEmail").value.trim();
+    const btn = document.getElementById("forgotBtn");
     setLoading(btn, true);
 
     try {
       await sendPasswordResetEmail(auth, email);
-      showInfo('forgotInfo', '✅ পাসওয়ার্ড রিসেটের লিঙ্ক ইমেইলে পাঠানো হয়েছে। Spam ফোল্ডারও দেখুন।');
+      showInfo('forgotInfo', "✅ পাসওয়ার্ড রিসেটের লিংক আপনার ইমেইলে পাঠানো হয়েছে (Spam ফোল্ডারও দেখুন)।");
     } catch (err) {
-      showError('forgotError', '❌ ' + authMessage(err));
+      showError('forgotError', authMessage(err));
     } finally {
       setLoading(btn, false);
     }
+  });
+
+  document.querySelectorAll('#loginForm input').forEach(input => {
+    input.addEventListener('focus', function () { this.parentElement.style.transform = 'translateY(-2px)'; });
+    input.addEventListener('blur', function () { this.parentElement.style.transform = 'translateY(0)'; });
   });
 </script>

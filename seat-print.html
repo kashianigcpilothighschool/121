@@ -13,15 +13,34 @@
   * { box-sizing: border-box; }
   body { font-family:'Times New Roman',Times,'SolaimanLipi','Kalpurush','Noto Sans Bengali',serif; margin:0; background:#EEF1F8; color:#000; }
 
-  /* ---- টুলবার (প্রিন্টে দেখাবে না) ---- */
-  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'Times New Roman',Times,'SolaimanLipi','Kalpurush',sans-serif; }
-  .toolbar select, .toolbar button { font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:none; }
-  .toolbar button { background:var(--gold); color:#fff; font-weight:600; cursor:pointer; }
-  .toolbar button.alt { background:#fff; color:var(--navy); }
-  #msg { padding:30px; text-align:center; }
+  /* ---- টুলবার ও পর্দার নকশা (প্রিন্টে দেখাবে না) ---- */
+  :root { --ink:#17223B; --ink-soft:#5B6579; --desk:#E7EAF0; --card:#fff; --line:#D5DAE4; --accent:#1D2B4F; --accent-ink:#fff; --gold:#B9822E; --focus:#2F6FED; }
+  body { background:var(--desk); }
+  .toolbar { position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:10px 18px; background:rgba(255,255,255,.88); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); box-shadow:0 1px 0 rgba(255,255,255,.7), 0 6px 18px rgba(23,34,59,.06); color:var(--ink); font-size:15px; }
+  .toolbar .brand { display:flex; align-items:center; gap:10px; margin-right:auto; font-weight:700; font-size:17px; }
+  .toolbar .brand .mark { width:32px; height:32px; border-radius:9px; background:var(--accent); color:#fff; display:grid; place-items:center; }
+  .toolbar .group { display:flex; align-items:center; gap:8px; }
+  .toolbar label.field { display:flex; flex-direction:column; gap:2px; font-size:11.5px; color:var(--ink-soft); font-weight:500; }
+  .toolbar select { font:inherit; font-size:14px; color:var(--ink); padding:7px 30px 7px 10px; min-height:38px; border:1px solid var(--line); border-radius:9px; background:#fff; cursor:pointer; }
+  .toolbar button { font:inherit; font-size:14px; min-height:38px; padding:0 14px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:background .15s, border-color .15s, transform .1s; }
+  .toolbar button:hover { background:#F3F5F9; border-color:#C2C9D6; }
+  .toolbar button:active { transform:translateY(1px); }
+  .toolbar button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700; }
+  .toolbar button.primary:hover { background:#27396A; }
+  .toolbar button svg { width:17px; height:17px; flex:none; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; }
+  .seg button { border:none; border-radius:0; min-height:36px; }
+  .seg button + button { border-left:1px solid var(--line); }
+  .badge { min-width:22px; height:22px; padding:0 6px; border-radius:999px; background:#EEF1F8; color:var(--accent); font-size:12.5px; font-weight:700; display:inline-grid; place-items:center; }
+  .toolbar :focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  #msg { max-width:420px; margin:60px auto; padding:26px 22px; text-align:center; background:#fff; border:1px solid var(--line); border-radius:14px; color:var(--ink-soft); }
+  #msg.loading::before { content:""; display:block; width:26px; height:26px; margin:0 auto 12px; border:3px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:spin .9s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion:reduce) { #msg.loading::before { animation:none; } }
+  @media (max-width:720px) { .toolbar { padding:10px 12px; } .toolbar .brand { width:100%; } .toolbar .group { flex-wrap:wrap; } }
 
   /* ---- Legal পাতা (পুরোনো PDF-এর মাপ: 8.5in x 14in) ---- */
-  .page { background:#fff; width:var(--pw,8.5in); min-height:var(--ph,14in); margin:16px auto; padding:0.25in 0.3in; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
+  .page { background:#fff; width:var(--pw,8.5in); min-height:var(--ph,14in); margin:16px auto; padding:0.25in 0.3in; box-shadow:0 1px 2px rgba(23,34,59,.10), 0 10px 30px rgba(23,34,59,.14); border-radius:2px; page-break-after:always; }
   .page.hidden { display:none; }
   .page { line-height:1.05; }
 
@@ -80,20 +99,42 @@
 <body>
 
 <div class="toolbar">
-  <select id="roomSelect"></select>
-  <select id="paperSelect" title="কাগজের মাপ">
-    <option value="legal">কাগজ: Legal (8.5×14 ইঞ্চি)</option>
-    <option value="a4">কাগজ: A4 (8.27×11.69 ইঞ্চি)</option>
-    <option value="letter">কাগজ: Letter (8.5×11 ইঞ্চি)</option>
-    <option value="folio">কাগজ: Folio (8.5×13 ইঞ্চি)</option>
-  </select>
-  <button onclick="window.print()">🖨️ প্রিন্ট করুন</button>
-  <button class="alt" id="btnTwo" onclick="printType('two')">২ কলাম প্রিন্ট</button>
-  <button class="alt" id="btnThree" onclick="printType('three')">৩ কলাম প্রিন্ট</button>
-  <button class="alt" onclick="window.location.href='seat-plan.html'">← ফিরে যান</button>
+  <div class="brand">
+    <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></span>
+    সিট প্লান প্রিন্ট
+  </div>
+
+  <div class="group">
+    <label class="field">কক্ষ
+      <select id="roomSelect"></select>
+    </label>
+    <label class="field">কাগজের মাপ
+      <select id="paperSelect">
+        <option value="legal">Legal (8.5×14 ইঞ্চি)</option>
+        <option value="a4">A4 (8.27×11.69 ইঞ্চি)</option>
+        <option value="letter">Letter (8.5×11 ইঞ্চি)</option>
+        <option value="folio">Folio (8.5×13 ইঞ্চি)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="group">
+    <button class="primary" onclick="window.print()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7"/></svg>
+      প্রিন্ট করুন
+    </button>
+    <div class="seg" role="group" aria-label="কলাম অনুযায়ী সব কক্ষ প্রিন্ট">
+      <button id="btnTwo" onclick="printType('two')">২ কলাম প্রিন্ট <span class="badge" id="cntTwo">০</span></button>
+      <button id="btnThree" onclick="printType('three')">৩ কলাম প্রিন্ট <span class="badge" id="cntThree">০</span></button>
+    </div>
+    <button onclick="window.location.href='seat-plan.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      ফিরে যান
+    </button>
+  </div>
 </div>
 
-<div id="msg">লোড হচ্ছে...</div>
+<div id="msg" class="loading">লোড হচ্ছে...</div>
 <div id="sheets"></div>
 
 <script type="module">
@@ -150,9 +191,22 @@ function applyPaper(key) {
   applyPaper(saved);
   sel.addEventListener('change', () => {
     applyPaper(sel.value);
+    if (typeof fitPages === 'function') fitPages();
     try { localStorage.setItem('paperSize', sel.value); } catch (_) {}
   });
 })();
+
+// ছোট পর্দায় পাতা আঁটাতে zoom (প্রিন্টে বন্ধ থাকে)
+function fitPages() {
+  const w = document.querySelector('.page:not(.hidden)');
+  const pageW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pw')) || 8.5;
+  const px = (document.documentElement.style.getPropertyValue('--pw') || '8.5in').endsWith('mm') ? pageW * 3.7795 : pageW * 96;
+  const z = Math.min(1, (window.innerWidth - 24) / px);
+  document.querySelectorAll('.page').forEach(p => { p.style.zoom = z < 1 ? z : ''; });
+}
+window.addEventListener('resize', fitPages);
+window.addEventListener('beforeprint', () => document.querySelectorAll('.page').forEach(p => { p.style.zoom = ''; }));
+window.addEventListener('afterprint', fitPages);
 
 let plans = [];
 
@@ -166,6 +220,7 @@ onAuthStateChanged(auth, async (user) => {
     await loadPlans();
   } catch (err) {
     console.error(err);
+    document.getElementById('msg').classList.remove('loading');
     document.getElementById('msg').textContent =
       'ডেটা লোড করা যায়নি: ' + (err.code === 'permission-denied' ? 'Firestore Rules-এ seatPlans পড়ার অনুমতি নেই।' : err.message);
   }
@@ -176,7 +231,9 @@ async function loadPlans() {
   plans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   if (plans.length === 0) {
-    document.getElementById('msg').textContent = 'কোনো সিট প্লান পাওয়া যায়নি। আগে সাবমিট করুন।';
+    document.getElementById('msg').classList.remove('loading');
+    document.getElementById('msg').classList.remove('loading');
+    document.getElementById('msg').textContent = 'কোনো সিট প্লান পাওয়া যায়নি। সিট প্লান পেজে গিয়ে আগে সাবমিট করুন।';
     return;
   }
 
@@ -194,13 +251,14 @@ async function loadPlans() {
   sel.addEventListener('change', () => showOne(sel.value));
 
   document.getElementById('sheets').innerHTML = plans.map(renderPlan).join('');
-  document.getElementById('btnTwo').textContent = '২ কলাম প্রিন্ট - ' + bn(document.querySelectorAll('.page.two').length) + ' কক্ষ';
-  document.getElementById('btnThree').textContent = '৩ কলাম প্রিন্ট - ' + bn(document.querySelectorAll('.page.three').length) + ' কক্ষ';
+  document.getElementById('cntTwo').textContent = bn(document.querySelectorAll('.page.two').length);
+  document.getElementById('cntThree').textContent = bn(document.querySelectorAll('.page.three').length);
 
   const wanted = new URLSearchParams(location.search).get('room');
   const start = plans.find(p => p.id === wanted) ? wanted : latestId;
   sel.value = start;
   showOne(start);
+  fitPages();
 }
 
 function showOne(id) {

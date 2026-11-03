@@ -4,35 +4,90 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>অ্যাডমিন প্যানেল</title>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#1F2D50;--paper:#FAF6EC;--card:#fff;--line:#E4E0D4;--gold:#A87E33;--ok:#23895B;--bad:#C0392B;--muted:#6B7280}
-  @media (prefers-color-scheme: dark){:root{--ink:#E8ECF7;--paper:#101A33;--card:#1B2748;--line:#33456F;--gold:#D6A24E;--ok:#5FD3A0;--bad:#F0A89E;--muted:#9CA3AF}}
+  :root{--ink:#1F2D50;--paper:#F6F1E4;--card:#fff;--line:#E4E0D4;--gold:#A87E33;--ok:#23895B;--okbg:#E4F4EB;--bad:#C0392B;--badbg:#FBE9E6;--warn:#B7791F;--warnbg:#FDF1DB;--muted:#6B7280;--shadow:0 1px 2px rgba(31,45,80,.06),0 4px 14px rgba(31,45,80,.05)}
+  @media (prefers-color-scheme: dark){:root{--ink:#E8ECF7;--paper:#0D1630;--card:#18244A;--line:#2E4070;--gold:#D6A24E;--ok:#5FD3A0;--okbg:#14382F;--bad:#F0A89E;--badbg:#4A2326;--warn:#F2C26B;--warnbg:#4A3A17;--muted:#9AA6C2;--shadow:none}}
   *{box-sizing:border-box}
-  body{margin:0;padding:24px 14px;font-family:'Hind Siliguri',sans-serif;background:var(--paper);color:var(--ink)}
-  .wrap{max-width:980px;margin:0 auto}
-  header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-  h1{margin:0;font-size:22px}
-  button{font-family:inherit;cursor:pointer;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;font-weight:600}
-  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  body{margin:0;padding:0 0 40px;font-family:'Hind Siliguri',sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}
+  .top{background:var(--ink);color:var(--paper);padding:18px 14px}
+  @media (prefers-color-scheme: dark){.top{background:#16224A;color:#E8ECF7}}
+  .top-in,.wrap{max-width:1000px;margin:0 auto}
+  .top-in{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  h1{margin:0;font-size:22px;font-weight:700}
+  .sub{font-size:13px;opacity:.75}
+  .wrap{padding:18px 14px 0}
+  button,input{font-family:inherit;font-size:14px}
+  button{cursor:pointer;border-radius:9px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;font-weight:600;transition:.15s}
+  button:hover:not(:disabled){border-color:var(--gold)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .top button{background:transparent;color:inherit;border-color:rgba(255,255,255,.35)}
+  .top-acts{display:flex;gap:8px;flex-wrap:wrap}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);border-top:3px solid var(--line)}
+  .stat b{display:block;font-size:26px;line-height:1.2}
+  .stat span{font-size:13px;color:var(--muted)}
+  .stat.s-pending{border-top-color:var(--warn)}.stat.s-active{border-top-color:var(--ok)}.stat.s-disabled{border-top-color:var(--bad)}.stat.s-all{border-top-color:var(--gold)}
+  .bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
   .tabs button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-  .meta{font-size:13px;color:var(--muted);line-height:1.6}
-  .name{font-weight:700;font-size:16px}
-  .badge{font-size:12px;padding:2px 10px;border-radius:999px;border:1px solid var(--line)}
+  .tabs i{font-style:normal;opacity:.7;margin-left:4px}
+  .search{flex:1;min-width:200px;max-width:340px;padding:8px 12px;border-radius:9px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+  .search:focus{outline:none;border-color:var(--gold)}
+  .bulk{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--warnbg);color:var(--warn);border-radius:10px;padding:9px 14px;margin-bottom:12px;font-weight:600;flex-wrap:wrap}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+  .who{display:flex;gap:12px;align-items:center;min-width:0;flex:1 1 320px}
+  .av{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:18px;background:var(--ink);color:var(--paper)}
+  .av.admin{background:var(--gold);color:#fff}
+  .info{min-width:0}
+  .name{font-weight:700;font-size:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .meta{font-size:13px;color:var(--muted);word-break:break-all}
+  .meta a{color:inherit}
+  .chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+  .chip{font-size:12px;padding:1px 9px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+  .badge{font-size:11.5px;padding:1px 10px;border-radius:999px;font-weight:600}
+  .b-admin{background:var(--gold);color:#fff}.b-user{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+  .b-pending{background:var(--warnbg);color:var(--warn)}.b-active{background:var(--okbg);color:var(--ok)}.b-disabled{background:var(--badbg);color:var(--bad)}
   .acts{display:flex;gap:8px}
-  .ok{color:var(--ok);border-color:var(--ok)} .bad{color:var(--bad);border-color:var(--bad)}
-  #msg{padding:10px 14px;border-radius:8px;margin-bottom:12px;display:none;border:1px solid var(--line);background:var(--card)}
+  .ok{background:var(--ok);border-color:var(--ok);color:#fff}
+  .ok:hover:not(:disabled){border-color:var(--ok);filter:brightness(1.1)}
+  .bad{color:var(--bad);border-color:var(--bad)}
+  .empty{text-align:center;color:var(--muted);padding:40px 10px;background:var(--card);border:1px dashed var(--line);border-radius:14px}
+  .skel{height:76px;border-radius:14px;margin-bottom:10px;background:linear-gradient(90deg,var(--card) 25%,var(--line) 50%,var(--card) 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:90vw}
+  #toast.show{opacity:1;transform:translateX(-50%)}
+  #toast.err{background:var(--bad);color:#fff}
+  dialog{border:none;border-radius:14px;padding:22px;max-width:380px;width:90%;background:var(--card);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(0,0,0,.45)}
+  dialog h3{margin:0 0 8px}dialog p{margin:0 0 16px;color:var(--muted)}
+  .dacts{display:flex;gap:8px;justify-content:flex-end}
+  @media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}.acts{width:100%}.acts button{flex:1}}
 </style>
 </head>
 <body>
+<div class="top"><div class="top-in">
+  <div><h1>🛡️ অ্যাডমিন প্যানেল</h1><div class="sub" id="me">ইউজার ব্যবস্থাপনা</div></div>
+  <div class="top-acts">
+    <a href="seat-plan.html"><button>সিট প্ল্যান</button></a>
+    <button id="refreshBtn">🔄 রিফ্রেশ</button>
+    <button id="logoutBtn">লগআউট</button>
+  </div>
+</div></div>
+
 <div class="wrap">
-  <header><h1>🛡️ অ্যাডমিন প্যানেল</h1>
-    <div><a href="seat-plan.html"><button>সিট প্ল্যান</button></a> <button id="logoutBtn">লগআউট</button></div></header>
-  <div id="msg"></div>
-  <div class="tabs" id="tabs"></div>
-  <div id="list">লোড হচ্ছে...</div>
+  <div class="stats" id="stats"></div>
+  <div class="bar">
+    <div class="tabs" id="tabs"></div>
+    <input class="search" id="search" type="search" placeholder="🔍 নাম, ইমেইল বা মোবাইল দিয়ে খুঁজুন">
+  </div>
+  <div id="bulk"></div>
+  <div id="list"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 </div>
+
+<div id="toast"></div>
+<dialog id="dlg"><h3 id="dTitle"></h3><p id="dText"></p>
+  <div class="dacts"><button id="dNo">বাতিল</button><button id="dYes" class="ok">নিশ্চিত</button></div></dialog>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -40,66 +95,133 @@
   import { getFirestore, doc, getDoc, getDocs, updateDoc, collection }
            from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-  // login.html-এর config-এর সাথে হুবহু এক
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
+    apiKey: "AIzaSyBEK87giX4dJunYNjD6aH6VYXQ5IaCVgx8",
     authDomain: "ssc-seat-plan.firebaseapp.com",
     projectId: "ssc-seat-plan",
-    storageBucket: "ssc-seat-plan.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    storageBucket: "ssc-seat-plan.firebasestorage.app",
+    messagingSenderId: "56229919406",
+    appId: "1:56229919406:web:1b33d7f269214d03efcb3f"
   };
   const auth = getAuth(initializeApp(firebaseConfig));
   const db = getFirestore(auth.app);
 
   const LABEL = { pending: 'অপেক্ষমাণ', active: 'সক্রিয়', disabled: 'নিষ্ক্রিয়' };
-  let users = [], tab = 'pending';
+  const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  let users = [], tab = 'pending', q = '', myUid = null;
 
+  const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  function msg(t){ const m=document.getElementById('msg'); m.textContent=t; m.style.display='block'; setTimeout(()=>m.style.display='none',4000); }
+  const count = s => users.filter(u => u.status === s).length;
+
+  let tt;
+  function toast(t, err) {
+    const el = $('toast'); el.textContent = t; el.className = 'show' + (err ? ' err' : '');
+    clearTimeout(tt); tt = setTimeout(() => el.className = '', 3500);
+  }
+  function confirmBox(title, text, yesLabel, danger) {
+    return new Promise(res => {
+      $('dTitle').textContent = title; $('dText').textContent = text;
+      const y = $('dYes'); y.textContent = yesLabel; y.className = danger ? 'bad' : 'ok';
+      const d = $('dlg'); d.showModal();
+      const done = v => { d.close(); y.onclick = n.onclick = null; res(v); };
+      const n = $('dNo'); y.onclick = () => done(true); n.onclick = () => done(false);
+    });
+  }
+  const dateStr = u => {
+    const t = u.createdAt && u.createdAt.toDate ? u.createdAt.toDate() : null;
+    return t ? bn(t.toLocaleDateString('en-GB')) : '';
+  };
 
   function render() {
-    document.getElementById('tabs').innerHTML = Object.keys(LABEL).map(k =>
-      `<button class="${k===tab?'on':''}" data-tab="${k}">${LABEL[k]} (${users.filter(u=>u.status===k).length})</button>`).join('');
-    const rows = users.filter(u => u.status === tab);
-    document.getElementById('list').innerHTML = rows.length ? rows.map(u => `
-      <div class="card">
-        <div><div class="name">${esc(u.name)} <span class="badge">${u.role==='admin'?'অ্যাডমিন':'ইউজার'}</span></div>
-          <div class="meta">${esc(u.email)} · ${esc(u.mobile)}<br>অ্যাক্সেস: ${esc((u.classAccess||[]).join(', '))}</div></div>
+    $('stats').innerHTML = [['all','মোট ইউজার',users.length],['pending','অপেক্ষমাণ',count('pending')],['active','সক্রিয়',count('active')],['disabled','নিষ্ক্রিয়',count('disabled')]]
+      .map(([k,l,n]) => `<div class="stat s-${k}"><b>${bn(n)}</b><span>${l}</span></div>`).join('');
+    $('tabs').innerHTML = Object.keys(LABEL).map(k =>
+      `<button class="${k===tab?'on':''}" data-tab="${k}">${LABEL[k]}<i>${bn(count(k))}</i></button>`).join('');
+
+    const term = q.trim().toLowerCase();
+    const rows = users.filter(u => u.status === tab && (!term ||
+      [u.name, u.email, u.mobile].some(v => String(v ?? '').toLowerCase().includes(term))))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+    $('bulk').innerHTML = (tab === 'pending' && rows.length > 1)
+      ? `<div class="bulk"><span>${bn(rows.length)} জন অনুমোদনের অপেক্ষায়</span><button class="ok" data-bulk="1">✔ সবাইকে অনুমোদন</button></div>` : '';
+
+    $('list').innerHTML = rows.length ? rows.map(u => {
+      const isMe = u.id === myUid, isAdm = u.role === 'admin';
+      const init = esc((u.name || '?').trim().charAt(0).toUpperCase());
+      const d = dateStr(u);
+      return `<div class="card">
+        <div class="who"><div class="av ${isAdm?'admin':''}">${init}</div>
+          <div class="info">
+            <div class="name">${esc(u.name)}
+              <span class="badge ${isAdm?'b-admin':'b-user'}">${isAdm?'অ্যাডমিন':'ইউজার'}</span>
+              <span class="badge b-${esc(u.status)}">${LABEL[u.status] || esc(u.status)}</span>${isMe?' <span class="badge b-user">আপনি</span>':''}</div>
+            <div class="meta">✉ ${esc(u.email)}${u.mobile ? ` · 📞 <a href="tel:${esc(u.mobile)}">${esc(u.mobile)}</a>` : ''}${d ? ` · 🗓 ${d}` : ''}</div>
+            ${(u.classAccess||[]).length ? `<div class="chips">${u.classAccess.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
+          </div></div>
         <div class="acts">
-          ${u.status!=='active' ? `<button class="ok" data-act="active" data-id="${u.id}">অনুমোদন</button>` : ''}
-          ${u.status!=='disabled' && u.role!=='admin' ? `<button class="bad" data-act="disabled" data-id="${u.id}">নিষ্ক্রিয়</button>` : ''}
-        </div>
-      </div>`).join('') : '<div class="meta">কোনো ইউজার নেই।</div>';
+          ${u.status!=='active' ? `<button class="ok" data-act="active" data-id="${esc(u.id)}">✔ অনুমোদন</button>` : ''}
+          ${u.status!=='disabled' && !isAdm && !isMe ? `<button class="bad" data-act="disabled" data-id="${esc(u.id)}">নিষ্ক্রিয়</button>` : ''}
+        </div></div>`;
+    }).join('') : `<div class="empty">${term ? 'কোনো ফলাফল পাওয়া যায়নি।' : 'এই তালিকায় কোনো ইউজার নেই।'}</div>`;
   }
 
   async function load() {
-    const snap = await getDocs(collection(db, 'users'));
-    users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    render();
+    $('refreshBtn').disabled = true;
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    } catch (err) {
+      $('list').innerHTML = `<div class="empty">ত্রুটি: ${esc(err.message)}</div>`;
+    } finally { $('refreshBtn').disabled = false; }
+  }
+
+  async function setStatus(id, status) {
+    await updateDoc(doc(db, 'users', id), { status });
+    const u = users.find(x => x.id === id); if (u) u.status = status;
   }
 
   document.addEventListener('click', async e => {
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; render(); return; }
+
+    const bulk = e.target.closest('[data-bulk]');
+    if (bulk) {
+      const ids = users.filter(u => u.status === 'pending').map(u => u.id);
+      if (!await confirmBox('সবাইকে অনুমোদন?', `${bn(ids.length)} জন অপেক্ষমাণ ইউজারকে সক্রিয় করা হবে।`, 'অনুমোদন', false)) return;
+      bulk.disabled = true; let ok = 0;
+      for (const id of ids) { try { await setStatus(id, 'active'); ok++; } catch (_) {} }
+      toast(`✅ ${bn(ok)} জন অনুমোদিত হয়েছে`, ok < ids.length); render(); return;
+    }
+
     const b = e.target.closest('[data-act]'); if (!b) return;
+    const u = users.find(x => x.id === b.dataset.id); if (!u) return;
+    const act = b.dataset.act;
+    if (act === 'disabled' && !await confirmBox('নিষ্ক্রিয় করবেন?', `${u.name} আর লগইন বা সিট প্ল্যান ব্যবহার করতে পারবেন না।`, 'নিষ্ক্রিয় করুন', true)) return;
     b.disabled = true;
     try {
-      await updateDoc(doc(db, 'users', b.dataset.id), { status: b.dataset.act });
-      msg('✅ হালনাগাদ হয়েছে'); await load();
-    } catch (err) { msg('ত্রুটি: ' + err.message); b.disabled = false; }
+      await setStatus(u.id, act);
+      toast(act === 'active' ? `✅ ${u.name}-কে অনুমোদন দেওয়া হয়েছে` : `${u.name}-কে নিষ্ক্রিয় করা হয়েছে`);
+      render();
+    } catch (err) { toast('ত্রুটি: ' + err.message, true); b.disabled = false; }
   });
 
-  document.getElementById('logoutBtn').onclick = async () => { await signOut(auth); location.href = 'login.html'; };
+  $('search').addEventListener('input', e => { q = e.target.value; render(); });
+  $('refreshBtn').onclick = async () => { await load(); toast('তালিকা হালনাগাদ হয়েছে'); };
+  $('logoutBtn').onclick = async () => { await signOut(auth); location.href = 'login.html'; };
 
   onAuthStateChanged(auth, async user => {
     if (!user) { location.href = 'login.html'; return; }
     try {
       const me = await getDoc(doc(db, 'users', user.uid));
       if (!me.exists() || me.data().status !== 'active' || me.data().role !== 'admin') {
-        document.body.innerHTML = '<p style="padding:30px">❌ শুধু অ্যাডমিনের জন্য।</p>'; return;
+        document.body.innerHTML = '<p style="padding:30px;font-family:sans-serif">❌ শুধু অ্যাডমিনের জন্য। <a href="seat-plan.html">সিট প্ল্যানে ফিরে যান</a></p>'; return;
       }
+      myUid = user.uid;
+      $('me').textContent = 'স্বাগতম, ' + (me.data().name || user.email);
       await load();
-    } catch (err) { document.getElementById('list').textContent = 'ত্রুটি: ' + err.message; }
+    } catch (err) { $('list').innerHTML = `<div class="empty">ত্রুটি: ${esc(err.message)}</div>`; }
   });
 </script>
 </body>

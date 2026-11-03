@@ -4,34 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>সিট প্লান প্রিন্ট</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --navy:#1D2B4F; --gold:#B9822E; --line:#333; }
+  :root { --navy:#1D2B4F; --gold:#B9822E; --band:#DCEFDC; --cream:#FFF2CC; --sky:#DDEBF7; }
   * { box-sizing: border-box; }
-  body { font-family:'Hind Siliguri',sans-serif; margin:0; background:#EEF1F8; color:#111; }
-  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  body { font-family:'Noto Serif Bengali','Hind Siliguri',serif; margin:0; background:#EEF1F8; color:#000; }
+
+  /* ---- টুলবার (প্রিন্টে দেখাবে না) ---- */
+  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'Hind Siliguri',sans-serif; }
   .toolbar select, .toolbar button { font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:none; }
   .toolbar button { background:var(--gold); color:#fff; font-weight:600; cursor:pointer; }
   .toolbar button.alt { background:#fff; color:var(--navy); }
-  #msg { padding:30px; text-align:center; }
-  .page { background:#fff; width:210mm; min-height:297mm; margin:16px auto; padding:12mm; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
+  #msg { padding:30px; text-align:center; font-family:'Hind Siliguri',sans-serif; }
+
+  /* ---- A4 পাতা ---- */
+  .page { background:#fff; width:210mm; min-height:297mm; margin:16px auto; padding:10mm 10mm 8mm; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; --rh:6.4mm; }
   .page.hidden { display:none; }
-  .title { text-align:center; font-family:'Noto Serif Bengali',serif; font-size:20px; font-weight:700; margin:0 0 6px; }
-  .info { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px 12px; font-size:13px; border:1px solid var(--line); padding:8px 10px; margin-bottom:8px; }
-  .info b { font-weight:600; }
-  table.seat { width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed; }
-  table.seat th, table.seat td { border:1px solid var(--line); text-align:center; padding:3px 2px; height:19px; }
-  table.seat th { background:#E9EDF6; font-weight:600; font-size:11px; }
-  table.seat td.gap, table.seat th.gap { border:none; background:#fff; width:14px; }
-  table.seat td.no, table.seat th.no { background:#f4f4f4; width:34px; font-weight:600; }
-  table.seat td.empty { color:#aaa; }
-  .schools { margin-top:10px; font-size:12px; }
-  .schools table { width:100%; border-collapse:collapse; }
-  .schools th, .schools td { border:1px solid var(--line); padding:3px 6px; text-align:left; }
-  .schools th { background:#E9EDF6; }
-  .sign { display:flex; justify-content:space-between; margin-top:34px; font-size:13px; }
-  .sign div { border-top:1px solid #000; padding-top:4px; min-width:150px; text-align:center; }
-  @page { size:A4 portrait; margin:8mm; }
+
+  .h1 { text-align:center; font-size:23px; font-weight:700; margin:0 0 5px; }
+  .h2 { text-align:center; font-size:14px; font-weight:500; margin:3px 0; }
+  .row-between { display:flex; justify-content:space-between; font-size:14px; font-weight:600; border-bottom:2px solid #000; padding:6px 0 3px; margin-top:8px; }
+  .venue { font-size:19px; font-weight:700; margin:6px 0 6px; }
+
+  .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:18px; font-weight:700; padding:4px 0; }
+  table.info { width:100%; border-collapse:collapse; font-size:13px; font-weight:600; }
+  table.info td { border:1px solid #000; padding:4px 6px; }
+  table.info td.mid { width:30%; text-align:center; font-size:21px; font-weight:700; }
+  table.info td.side { width:35%; }
+  table.info td.side.r { text-align:right; }
+  .building { width:42%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:14px; font-weight:600; padding:3px 4px; }
+
+  table.sch { width:100%; border-collapse:collapse; margin-top:10px; }
+  table.sch th { font-size:15px; font-weight:700; padding:3px 4px; border-bottom:2px solid #000; }
+  table.sch td { font-size:13px; padding:0 4px; height:var(--rh); border-bottom:1px solid #000; }
+  table.sch tr.alt td { background:#F2F2F2; }
+  table.sch td.name { text-align:left; }
+  table.sch td.roll { text-align:center; font-weight:700; font-size:14px; }
+  table.sch td.cnt { text-align:right; font-weight:600; }
+  table.sch th:nth-child(1) { text-align:left; }
+  table.sch th:nth-child(2) { text-align:center; }
+  table.sch th:nth-child(3) { text-align:right; }
+
+  .total { background:var(--band); text-align:right; font-weight:700; font-size:16px; padding:4px 6px; margin-top:6px; }
+
+  table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2px; }
+  table.seat td { height:var(--rh); text-align:center; font-weight:700; font-size:15px; border-bottom:1.5px solid #000; }
+  table.seat td.g { width:3mm; border-bottom:none; background:#fff; }
+  table.seat tr.odd td:not(.g) { background:var(--cream); }
+  table.seat td.blank { border-bottom-color:#eee; }
+  table.seat td.door { background:var(--navy) !important; color:#fff; font-size:13px; letter-spacing:.5px; border:none; }
+
+  @page { size:A4 portrait; margin:6mm; }
   @media print {
     body { background:#fff; }
     .toolbar, #msg { display:none !important; }
@@ -67,10 +90,19 @@ const firebaseConfig = {
   appId: "1:56229919406:web:1b33d7f269214d03efcb3f"
 };
 
-// কলামের ক্রম (seat-plan.html-এর সাথে একই)
+// ===== পরিবর্তনযোগ্য কেন্দ্রের তথ্য =====
+const CENTER = {
+  exam: 'এস.এস.সি পরীক্ষা - ২০২৬',
+  name: 'পরীক্ষা কেন্দ্র - কাশিয়ানী',
+  school: '(কাশিয়ানী গিরীশ চন্দ্র পাইলট উচ্চ বিদ্যালয়)',
+  place: 'কাশিয়ানী, গোপালগঞ্জ।',
+  code: '৩৩৩',
+  mobile: '০১৭১৫২২২৫৮৬',
+  venue: 'কাশিয়ানী গিরীশ চন্দ্র পাইলট উচ্চ বিদ্যালয়'
+};
+
+// সিটের কলামের ক্রম (seat-plan.html-এর সাথে একই): দুটি করে জোড়া
 const COLUMNS = ['C','D','F','G','I','J'];
-const LABELS  = { C:'বাম (ওয়াল)', D:'বাম (রোড)', F:'মধ্য (বাম)', G:'মধ্য (ডান)', I:'ডান (রোড)', J:'ডান (ওয়াল)' };
-const GAP_BEFORE = ['F','I'];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -79,15 +111,16 @@ const db = getFirestore(app);
 const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ms = p => (p.updatedAt && p.updatedAt.toMillis) ? p.updatedAt.toMillis() : 0;
+const floorText = f => { const t = String(f || '').trim(); return t === 'নিচতলা' ? 'নিচ তলা' : t; };
 
 let plans = [];
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { location.href = 'login.html'; return; }
+  if (!user) { location.href = 'index.html'; return; }
   try {
     const u = await getDoc(doc(db, 'users', user.uid));
     if (!u.exists() || u.data().status !== 'active') {
-      await signOut(auth); location.href = 'login.html'; return;
+      await signOut(auth); location.href = 'index.html'; return;
     }
     await loadPlans();
   } catch (err) {
@@ -106,7 +139,7 @@ async function loadPlans() {
     return;
   }
 
-  // সবচেয়ে সাম্প্রতিক সাবমিট করা কক্ষটি ডিফল্ট হবে
+  // সবচেয়ে সাম্প্রতিক সাবমিট করা কক্ষটি ডিফল্ট
   const latestId = [...plans].sort((a, b) => ms(b) - ms(a))[0].id;
 
   plans.sort((a, b) => String(a.roomInfo?.roomNumber || '').localeCompare(String(b.roomInfo?.roomNumber || ''), 'bn', { numeric: true }));
@@ -115,7 +148,7 @@ async function loadPlans() {
   const sel = document.getElementById('roomSelect');
   sel.innerHTML = plans.map(p => {
     const r = p.roomInfo || {};
-    return `<option value="${esc(p.id)}">কক্ষ ${esc(r.roomNumber)} — ${esc(r.building)} (${esc((r.floor || '').trim())})</option>`;
+    return `<option value="${esc(p.id)}">কক্ষ ${esc(r.roomNumber)} — ${esc(r.building)} (${esc(floorText(r.floor))})</option>`;
   }).join('');
   sel.addEventListener('change', () => showOne(sel.value));
 
@@ -137,7 +170,9 @@ window.showAll = function () {
 function renderPlan(p) {
   const r = p.roomInfo || {};
   const schools = p.schools || [];
+  const totalStu = p.totals?.totalStudents || 0;
 
+  // প্রতিটি কলামের সিট তালিকা (রোল না থাকলে null = ফাঁকা সিট)
   const seatsByCol = COLUMNS.map((_, i) => {
     const seats = [];
     ((p.columnData || [])[i]?.ranges || []).forEach(rg => {
@@ -147,49 +182,63 @@ function renderPlan(p) {
   });
   const rows = Math.max(r.benchCount || 0, ...seatsByCol.map(s => s.length));
 
-  let head = '<tr><th class="no">বেঞ্চ</th>';
-  COLUMNS.forEach(c => {
-    if (GAP_BEFORE.includes(c)) head += '<th class="gap"></th>';
-    head += `<th>${LABELS[c]}</th>`;
-  });
-  head += '</tr>';
+  // DOOR: শেষ জোড়ার (I, J) প্রথম সারি ফাঁকা হলে সেখানে দরজা দেখাবে
+  const doorRow0 = !seatsByCol[4][0] && !seatsByCol[5][0];
 
   let body = '';
   for (let i = 0; i < rows; i++) {
-    body += `<tr><td class="no">${bn(i + 1)}</td>`;
+    let tr = `<tr class="${i % 2 === 0 ? 'odd' : 'even'}">`;
     COLUMNS.forEach((c, ci) => {
-      if (GAP_BEFORE.includes(c)) body += '<td class="gap"></td>';
+      if (ci === 2 || ci === 4) tr += '<td class="g"></td>';
+      if (i === 0 && doorRow0 && ci === 4) {
+        tr += '<td class="door" colspan="2">DOOR</td>';
+        return;
+      }
+      if (i === 0 && doorRow0 && ci === 5) return;
       const roll = seatsByCol[ci][i];
-      body += roll ? `<td>${bn(roll)}</td>` : '<td class="empty">—</td>';
+      tr += roll ? `<td>${roll}</td>` : '<td class="blank"></td>';
     });
-    body += '</tr>';
+    body += tr + '</tr>';
   }
 
   const schoolRows = schools.map((s, i) =>
-    `<tr><td>${bn(i + 1)}</td><td>${esc(s.name)}</td><td>${bn(s.startRoll)} – ${bn(s.endRoll)}</td><td>${bn(s.studentCount)}</td></tr>`
+    `<tr class="${i % 2 ? 'alt' : ''}"><td class="name">${esc(s.name)}ঃ</td><td class="roll">${s.startRoll}-${s.endRoll}</td><td class="cnt">মোট ${s.studentCount} জন</td></tr>`
   ).join('');
 
+  // জায়গা কম পড়লে সারির উচ্চতা কমানো হবে, যাতে এক পাতায় ধরে
+  const load = rows + schools.length;
+  const rh = load > 42 ? 5.0 : load > 36 ? 5.5 : load > 30 ? 6.0 : 6.6;
+
   return `
-  <div class="page" data-id="${esc(p.id)}">
-    <h1 class="title">পরীক্ষা কক্ষের সিট প্লান</h1>
-    <div class="info">
-      <div><b>কক্ষ নং:</b> ${esc(r.roomNumber)} (${esc(r.gender)})</div>
-      <div><b>বিভাগ:</b> ${esc(r.department)}</div>
-      <div><b>বেঞ্চের সংখ্যা:</b> ${bn(r.benchCount || 0)} খানা</div>
-      <div><b>ভবন:</b> ${esc(r.building)}</div>
-      <div><b>তলা:</b> ${esc((r.floor || '').trim())}</div>
-      <div><b>বসার দিক:</b> ${esc(r.direction)}</div>
-      <div><b>মোট পরীক্ষার্থী:</b> ${bn(p.totals?.totalStudents || 0)} জন</div>
-      <div><b>মোট সিট:</b> ${bn(p.totals?.totalSeats || 0)} টি</div>
-    </div>
-    <table class="seat">${head}${body}</table>
-    <div class="schools">
-      <table>
-        <tr><th>ক্রম</th><th>বিদ্যালয়</th><th>রোল</th><th>জন</th></tr>
-        ${schoolRows}
-      </table>
-    </div>
-    <div class="sign"><div>কক্ষ পরিদর্শক</div><div>পরীক্ষা নিয়ন্ত্রক</div><div>প্রধান শিক্ষক</div></div>
+  <div class="page" data-id="${esc(p.id)}" style="--rh:${rh}mm">
+    <h1 class="h1">${CENTER.exam}</h1>
+    <div class="h2">${CENTER.name}</div>
+    <div class="h2">${CENTER.school}</div>
+    <div class="h2">${CENTER.place}</div>
+    <div class="row-between"><span>কেন্দ্র কোডঃ ${CENTER.code}</span><span>মোবাইল নম্বরঃ ${CENTER.mobile}</span></div>
+    <div class="venue">ভেন্যুঃ ${CENTER.venue}</div>
+
+    <div class="plan-title">আসন পরিকল্পনা</div>
+    <table class="info">
+      <tr>
+        <td class="side">কক্ষ নংঃ ${esc(bn(r.roomNumber))} (${esc(r.gender)})</td>
+        <td class="mid" rowspan="2">${esc(r.direction)}</td>
+        <td class="side r">বিভাগঃ ${esc(r.department)}</td>
+      </tr>
+      <tr>
+        <td class="side">বেঞ্চের সংখ্যাঃ ${bn(r.benchCount || 0)} খানা</td>
+        <td class="side r">পরীক্ষার্থীর সংখ্যাঃ ${bn(totalStu)} জন</td>
+      </tr>
+    </table>
+    <div class="building">${esc(r.building)} (${esc(floorText(r.floor))})</div>
+
+    <table class="sch">
+      <tr><th>বিদ্যালয়ের নাম</th><th>রোল নম্বর</th><th>সংখ্যা</th></tr>
+      ${schoolRows}
+    </table>
+    <div class="total">মোট: ${totalStu} জন</div>
+
+    <table class="seat">${body}</table>
   </div>`;
 }
 </script>

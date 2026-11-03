@@ -17,48 +17,53 @@
   .toolbar button.alt { background:#fff; color:var(--navy); }
   #msg { padding:30px; text-align:center; font-family:'Hind Siliguri',sans-serif; }
 
-  /* ---- A4 পাতা ---- */
-  .page { background:#fff; width:210mm; min-height:297mm; margin:16px auto; padding:10mm 10mm 8mm; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; --rh:6.4mm; }
+  /* ---- Legal পাতা (পুরোনো PDF-এর মাপ: 8.5in x 14in) ---- */
+  .page { background:#fff; width:8.5in; min-height:14in; margin:16px auto; padding:0.25in 0.3in; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
   .page.hidden { display:none; }
 
-  .h1 { text-align:center; font-size:23px; font-weight:700; margin:0 0 5px; }
-  .h2 { text-align:center; font-size:14px; font-weight:500; margin:3px 0; }
-  .row-between { display:flex; justify-content:space-between; font-size:14px; font-weight:600; border-bottom:2px solid #000; padding:6px 0 3px; margin-top:8px; }
-  .venue { font-size:19px; font-weight:700; margin:6px 0 6px; }
+  .h1 { text-align:center; font-size:32pt; font-weight:700; margin:0 0 6pt; line-height:1.25; }
+  .h2 { text-align:center; font-size:21pt; font-weight:500; margin:4pt 0; line-height:1.25; }
+  .row-between { display:flex; justify-content:space-between; font-size:19pt; font-weight:700; border-bottom:2.5pt solid #000; padding:8pt 0 4pt; margin-top:10pt; }
+  .venue { font-size:29pt; font-weight:700; margin:8pt 0 8pt; line-height:1.25; }
 
-  .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:18px; font-weight:700; padding:4px 0; }
-  table.info { width:100%; border-collapse:collapse; font-size:13px; font-weight:600; }
-  table.info td { border:1px solid #000; padding:4px 6px; }
-  table.info td.mid { width:30%; text-align:center; font-size:21px; font-weight:700; }
+  .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:29pt; font-weight:700; padding:4pt 0; }
+  table.info { width:100%; border-collapse:collapse; font-size:19pt; font-weight:600; }
+  table.info td { border:1px solid #000; padding:6pt 8pt; }
+  table.info td.mid { width:30%; text-align:center; font-size:28pt; font-weight:700; }
   table.info td.side { width:35%; }
   table.info td.side.r { text-align:right; }
-  .building { width:42%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:14px; font-weight:600; padding:3px 4px; }
+  .building { width:44%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:20pt; font-weight:600; padding:4pt 4pt; }
 
-  table.sch { width:100%; border-collapse:collapse; margin-top:10px; }
-  table.sch th { font-size:15px; font-weight:700; padding:3px 4px; border-bottom:2px solid #000; }
-  table.sch td { font-size:13px; padding:0 4px; height:var(--rh); border-bottom:1px solid #000; }
+  table.sch { width:100%; border-collapse:collapse; margin-top:12pt; }
+  table.sch th { font-size:24pt; font-weight:700; padding:4pt 4pt; border-bottom:2.5pt solid #000; }
+  table.sch td { font-size:18pt; padding:0 4pt; height:13mm; border-bottom:1px solid #000; }
   table.sch tr.alt td { background:#F2F2F2; }
   table.sch td.name { text-align:left; }
-  table.sch td.roll { text-align:center; font-weight:700; font-size:14px; }
-  table.sch td.cnt { text-align:right; font-weight:600; }
+  table.sch td.roll { text-align:center; font-weight:700; font-size:21pt; font-family:'Times New Roman',Times,serif; }
+  table.sch td.cnt { text-align:right; font-weight:600; font-size:19pt; }
+  table.sch tr { page-break-inside:avoid; }
   table.sch th:nth-child(1) { text-align:left; }
   table.sch th:nth-child(2) { text-align:center; }
   table.sch th:nth-child(3) { text-align:right; }
 
-  .total { background:var(--band); text-align:right; font-weight:700; font-size:16px; padding:4px 6px; margin-top:6px; }
+  .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:4pt 8pt; margin-top:8pt; }
 
-  table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2px; }
-  table.seat td { height:var(--rh); text-align:center; font-weight:700; font-size:15px; border-bottom:1.5px solid #000; }
-  table.seat td.g { width:3mm; border-bottom:none; background:#fff; }
+  /* ---- সিটের ছক: তিন জোড়া, প্রতি জোড়ায় বামটি বাঁ দিকে, ডানটি ডান দিকে ---- */
+  table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2pt; }
+  table.seat tr { page-break-inside:avoid; }
+  table.seat td { height:11.7mm; padding:0 2pt; font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25pt; line-height:1; border-bottom:1.5pt solid #000; white-space:nowrap; }
+  table.seat td.l { text-align:left; }
+  table.seat td.rt { text-align:right; }
+  table.seat td.g { width:24pt; border-bottom:none; background:#fff; padding:0; }
   table.seat tr.odd td:not(.g) { background:var(--cream); }
   table.seat td.blank { border-bottom-color:#eee; }
-  table.seat td.door { background:var(--navy) !important; color:#fff; font-size:13px; letter-spacing:.5px; border:none; }
+  table.seat td.door { background:var(--navy) !important; color:#fff; font-family:'Hind Siliguri',sans-serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
 
-  @page { size:A4 portrait; margin:6mm; }
+  @page { size:8.5in 14in; margin:0; }
   @media print {
     body { background:#fff; }
     .toolbar, #msg { display:none !important; }
-    .page { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0; }
+    .page { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0.25in 0.3in; }
     .page.hidden { display:none !important; }
     * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   }
@@ -196,7 +201,8 @@ function renderPlan(p) {
       }
       if (i === 0 && doorRow0 && ci === 5) return;
       const roll = seatsByCol[ci][i];
-      tr += roll ? `<td>${roll}</td>` : '<td class="blank"></td>';
+      const cls = (ci % 2 === 0) ? 'l' : 'rt';
+      tr += roll ? `<td class="${cls}">${roll}</td>` : `<td class="blank ${cls}"></td>`;
     });
     body += tr + '</tr>';
   }
@@ -205,12 +211,9 @@ function renderPlan(p) {
     `<tr class="${i % 2 ? 'alt' : ''}"><td class="name">${esc(s.name)}ঃ</td><td class="roll">${s.startRoll}-${s.endRoll}</td><td class="cnt">মোট ${s.studentCount} জন</td></tr>`
   ).join('');
 
-  // জায়গা কম পড়লে সারির উচ্চতা কমানো হবে, যাতে এক পাতায় ধরে
-  const load = rows + schools.length;
-  const rh = load > 42 ? 5.0 : load > 36 ? 5.5 : load > 30 ? 6.0 : 6.6;
 
   return `
-  <div class="page" data-id="${esc(p.id)}" style="--rh:${rh}mm">
+  <div class="page" data-id="${esc(p.id)}">
     <h1 class="h1">${CENTER.exam}</h1>
     <div class="h2">${CENTER.name}</div>
     <div class="h2">${CENTER.school}</div>

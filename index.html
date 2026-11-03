@@ -713,12 +713,12 @@
 
   // Firebase Console → Project settings → Your apps থেকে আসল মান বসান
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
+    apiKey: "AIzaSyBEK87giX4dJunYNjD6aH6VYXQ5IaCVgx8",
     authDomain: "ssc-seat-plan.firebaseapp.com",
     projectId: "ssc-seat-plan",
-    storageBucket: "ssc-seat-plan.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    storageBucket: "ssc-seat-plan.firebasestorage.app",
+    messagingSenderId: "56229919406",
+    appId: "1:56229919406:web:1b33d7f269214d03efcb3f"
   };
   const SEAT_PLAN_PAGE = "seat-plan.html";
 
@@ -823,6 +823,7 @@
         return;
       }
       const status = snap.data().status;
+      const isAdminUser = snap.data().role === 'admin';
       if (status !== 'active') {
         await signOut(auth);
         showError('loginError', status === 'pending'
@@ -832,7 +833,7 @@
       }
       redirecting = true;
       showSuccess();
-      setTimeout(() => { window.location.href = SEAT_PLAN_PAGE; }, 1000);
+      setTimeout(() => { window.location.href = isAdminUser ? 'admin.html' : SEAT_PLAN_PAGE; }, 1000);
     } catch (err) {
       showError('loginError', authMessage(err));
     } finally {

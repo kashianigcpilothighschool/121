@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>সিট প্লান প্রিন্ট</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#1D2B4F; --gold:#B9822E; --line:#333; }
+  * { box-sizing: border-box; }
+  body { font-family:'Hind Siliguri',sans-serif; margin:0; background:#EEF1F8; color:#111; }
+  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .toolbar select, .toolbar button { font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:none; }
+  .toolbar button { background:var(--gold); color:#fff; font-weight:600; cursor:pointer; }
+  .toolbar button.alt { background:#fff; color:var(--navy); }
+  #msg { padding:30px; text-align:center; }
+  .page { background:#fff; width:210mm; min-height:297mm; margin:16px auto; padding:12mm; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
+  .page.hidden { display:none; }
+  .title { text-align:center; font-family:'Noto Serif Bengali',serif; font-size:20px; font-weight:700; margin:0 0 6px; }
+  .info { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px 12px; font-size:13px; border:1px solid var(--line); padding:8px 10px; margin-bottom:8px; }
+  .info b { font-weight:600; }
+  table.seat { width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed; }
+  table.seat th, table.seat td { border:1px solid var(--line); text-align:center; padding:3px 2px; height:19px; }
+  table.seat th { background:#E9EDF6; font-weight:600; font-size:11px; }
+  table.seat td.gap, table.seat th.gap { border:none; background:#fff; width:14px; }
+  table.seat td.no, table.seat th.no { background:#f4f4f4; width:34px; font-weight:600; }
+  table.seat td.empty { color:#aaa; }
+  .schools { margin-top:10px; font-size:12px; }
+  .schools table { width:100%; border-collapse:collapse; }
+  .schools th, .schools td { border:1px solid var(--line); padding:3px 6px; text-align:left; }
+  .schools th { background:#E9EDF6; }
+  .sign { display:flex; justify-content:space-between; margin-top:34px; font-size:13px; }
+  .sign div { border-top:1px solid #000; padding-top:4px; min-width:150px; text-align:center; }
+  @page { size:A4 portrait; margin:8mm; }
+  @media print {
+    body { background:#fff; }
+    .toolbar, #msg { display:none !important; }
+    .page { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0; }
+    .page.hidden { display:none !important; }
+    * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <select id="roomSelect"></select>
+  <button onclick="window.print()">🖨️ প্রিন্ট করুন</button>
+  <button class="alt" onclick="showAll()">সব কক্ষ একসাথে</button>
+  <button class="alt" onclick="window.location.href='seat-plan.html'">← ফিরে যান</button>
+</div>
+
+<div id="msg">লোড হচ্ছে...</div>
+<div id="sheets"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBEK87giX4dJunYNjD6aH6VYXQ5IaCVgx8",
+  authDomain: "ssc-seat-plan.firebaseapp.com",
+  projectId: "ssc-seat-plan",
+  storageBucket: "ssc-seat-plan.firebasestorage.app",
+  messagingSenderId: "56229919406",
+  appId: "1:56229919406:web:1b33d7f269214d03efcb3f"
+};
+
+// কলামের ক্রম (seat-plan.html-এর সাথে একই)
+const COLUMNS = ['C','D','F','G','I','J'];
+const LABELS  = { C:'বাম (ওয়াল)', D:'বাম (রোড)', F:'মধ্য (বাম)', G:'মধ্য (ডান)', I:'ডান (রোড)', J:'ডান (ওয়াল)' };
+const GAP_BEFORE = ['F','I'];
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ms = p => (p.updatedAt && p.updatedAt.toMillis) ? p.updatedAt.toMillis() : 0;
+
+let plans = [];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = 'login.html'; return; }
+  try {
+    const u = await getDoc(doc(db, 'users', user.uid));
+    if (!u.exists() || u.data().status !== 'active') {
+      await signOut(auth); location.href = 'login.html'; return;
+    }
+    await loadPlans();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('msg').textContent =
+      'ডেটা লোড করা যায়নি: ' + (err.code === 'permission-denied' ? 'Firestore Rules-এ seatPlans পড়ার অনুমতি নেই।' : err.message);
+  }
+});
+
+async function loadPlans() {
+  const snap = await getDocs(collection(db, 'seatPlans'));
+  plans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  if (plans.length === 0) {
+    document.getElementById('msg').textContent = 'কোনো সিট প্লান পাওয়া যায়নি। আগে সাবমিট করুন।';
+    return;
+  }
+
+  // সবচেয়ে সাম্প্রতিক সাবমিট করা কক্ষটি ডিফল্ট হবে
+  const latestId = [...plans].sort((a, b) => ms(b) - ms(a))[0].id;
+
+  plans.sort((a, b) => String(a.roomInfo?.roomNumber || '').localeCompare(String(b.roomInfo?.roomNumber || ''), 'bn', { numeric: true }));
+  document.getElementById('msg').style.display = 'none';
+
+  const sel = document.getElementById('roomSelect');
+  sel.innerHTML = plans.map(p => {
+    const r = p.roomInfo || {};
+    return `<option value="${esc(p.id)}">কক্ষ ${esc(r.roomNumber)} — ${esc(r.building)} (${esc((r.floor || '').trim())})</option>`;
+  }).join('');
+  sel.addEventListener('change', () => showOne(sel.value));
+
+  document.getElementById('sheets').innerHTML = plans.map(renderPlan).join('');
+
+  const wanted = new URLSearchParams(location.search).get('room');
+  const start = plans.find(p => p.id === wanted) ? wanted : latestId;
+  sel.value = start;
+  showOne(start);
+}
+
+function showOne(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('hidden', p.dataset.id !== id));
+}
+window.showAll = function () {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('hidden'));
+};
+
+function renderPlan(p) {
+  const r = p.roomInfo || {};
+  const schools = p.schools || [];
+
+  const seatsByCol = COLUMNS.map((_, i) => {
+    const seats = [];
+    ((p.columnData || [])[i]?.ranges || []).forEach(rg => {
+      for (let k = 0; k < rg.count; k++) seats.push(rg.startRoll > 0 ? rg.startRoll + k : null);
+    });
+    return seats;
+  });
+  const rows = Math.max(r.benchCount || 0, ...seatsByCol.map(s => s.length));
+
+  let head = '<tr><th class="no">বেঞ্চ</th>';
+  COLUMNS.forEach(c => {
+    if (GAP_BEFORE.includes(c)) head += '<th class="gap"></th>';
+    head += `<th>${LABELS[c]}</th>`;
+  });
+  head += '</tr>';
+
+  let body = '';
+  for (let i = 0; i < rows; i++) {
+    body += `<tr><td class="no">${bn(i + 1)}</td>`;
+    COLUMNS.forEach((c, ci) => {
+      if (GAP_BEFORE.includes(c)) body += '<td class="gap"></td>';
+      const roll = seatsByCol[ci][i];
+      body += roll ? `<td>${bn(roll)}</td>` : '<td class="empty">—</td>';
+    });
+    body += '</tr>';
+  }
+
+  const schoolRows = schools.map((s, i) =>
+    `<tr><td>${bn(i + 1)}</td><td>${esc(s.name)}</td><td>${bn(s.startRoll)} – ${bn(s.endRoll)}</td><td>${bn(s.studentCount)}</td></tr>`
+  ).join('');
+
+  return `
+  <div class="page" data-id="${esc(p.id)}">
+    <h1 class="title">পরীক্ষা কক্ষের সিট প্লান</h1>
+    <div class="info">
+      <div><b>কক্ষ নং:</b> ${esc(r.roomNumber)} (${esc(r.gender)})</div>
+      <div><b>বিভাগ:</b> ${esc(r.department)}</div>
+      <div><b>বেঞ্চের সংখ্যা:</b> ${bn(r.benchCount || 0)} খানা</div>
+      <div><b>ভবন:</b> ${esc(r.building)}</div>
+      <div><b>তলা:</b> ${esc((r.floor || '').trim())}</div>
+      <div><b>বসার দিক:</b> ${esc(r.direction)}</div>
+      <div><b>মোট পরীক্ষার্থী:</b> ${bn(p.totals?.totalStudents || 0)} জন</div>
+      <div><b>মোট সিট:</b> ${bn(p.totals?.totalSeats || 0)} টি</div>
+    </div>
+    <table class="seat">${head}${body}</table>
+    <div class="schools">
+      <table>
+        <tr><th>ক্রম</th><th>বিদ্যালয়</th><th>রোল</th><th>জন</th></tr>
+        ${schoolRows}
+      </table>
+    </div>
+    <div class="sign"><div>কক্ষ পরিদর্শক</div><div>পরীক্ষা নিয়ন্ত্রক</div><div>প্রধান শিক্ষক</div></div>
+  </div>`;
+}
+</script>
+</body>
+</html>

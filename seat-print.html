@@ -56,6 +56,10 @@
   table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2pt; }
   table.seat tr { page-break-inside:avoid; }
   table.seat td { height:11.7mm; padding:0 2pt 1.2mm; vertical-align:bottom; font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25pt; line-height:1; border-bottom:1.5pt solid #000; white-space:nowrap; }
+  /* ২ কলামে বেঞ্চ (সিটের ঘর) বড় */
+  table.seat.two td { height:15mm; font-size:32pt; padding-bottom:1.8mm; }
+  table.seat.two td.g { width:auto; }
+  table.seat.two td.door { font-size:26pt; padding-bottom:0; }
   table.seat td.l { text-align:left; }
   table.seat td.rt { text-align:right; }
   table.seat td.g { width:24pt; border-bottom:none; background:#fff; padding:0; }
@@ -295,7 +299,7 @@ function renderPlan(p) {
     </table>
     <div class="total">মোট: ${totalStu} জন</div>
 
-    <table class="seat ${two ? 'two' : ''}">${two ? '<colgroup><col style="width:17%"><col style="width:17%"><col style="width:32%"><col style="width:17%"><col style="width:17%"></colgroup>' : ''}${body}</table>
+    <table class="seat ${two ? 'two' : ''}">${two ? '<colgroup><col style="width:22%"><col style="width:22%"><col style="width:12%"><col style="width:22%"><col style="width:22%"></colgroup>' : ''}${body}</table>
   </div>`;
 }
 </script>

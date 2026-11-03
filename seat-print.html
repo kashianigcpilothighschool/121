@@ -62,6 +62,13 @@
   table.seat td.blank { border-bottom-color:#eee; }
   table.seat td.door { vertical-align:middle; padding-bottom:0; background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
 
+  /* ৩ জোড়া কলাম = Legal পাতা, ২ জোড়া কলাম = A4 পাতা */
+  .page.two { width:210mm; min-height:297mm; page:two; }
+  .page.three { page:three; }
+  table.seat.two td { height:10mm; font-size:22pt; }
+  table.seat.two td.g { width:auto; }
+  @page three { size:8.5in 14in; margin:0; }
+  @page two { size:A4 portrait; margin:0; }
   @page { size:8.5in 14in; margin:0; }
   @media print {
     body { background:#fff; }
@@ -188,7 +195,11 @@ function renderPlan(p) {
     });
     return seats;
   });
-  const rows = Math.max(r.benchCount || 0, ...seatsByCol.map(s => s.length));
+  // সারি = সবচেয়ে লম্বা কলামের সিট সংখ্যা (প্রতি সারি = এক জোড়া সিট)
+  const rows = Math.max(...seatsByCol.map(s => s.length)) || (r.benchCount || 0);
+  // মাঝের জোড়ায় (F, G) কোনো রোল না থাকলে ২ কলাম, থাকলে ৩ কলাম
+  const two = !seatsByCol[2].some(Boolean) && !seatsByCol[3].some(Boolean);
+  const use = two ? [0, 1, 4, 5] : [0, 1, 2, 3, 4, 5];
 
   // DOOR: শেষ জোড়ার (I, J) প্রথম সারি ফাঁকা হলে সেখানে দরজা দেখাবে
   const doorRow0 = !seatsByCol[4][0] && !seatsByCol[5][0];
@@ -196,8 +207,8 @@ function renderPlan(p) {
   let body = '';
   for (let i = 0; i < rows; i++) {
     let tr = `<tr class="${i % 2 === 0 ? 'odd' : 'even'}">`;
-    COLUMNS.forEach((c, ci) => {
-      if (ci === 2 || ci === 4) tr += '<td class="g"></td>';
+    use.forEach((ci) => {
+      if ((!two && ci === 2) || ci === 4) tr += '<td class="g"></td>';
       if (i === 0 && doorRow0 && ci === 4) {
         tr += '<td class="door" colspan="2">DOOR</td>';
         return;
@@ -216,7 +227,7 @@ function renderPlan(p) {
 
 
   return `
-  <div class="page" data-id="${esc(p.id)}">
+  <div class="page ${two ? 'two' : 'three'}" data-id="${esc(p.id)}">
     <h1 class="h1">${CENTER.exam}</h1>
     <div class="h2">${CENTER.name}</div>
     <div class="h2">${CENTER.school}</div>
@@ -244,7 +255,7 @@ function renderPlan(p) {
     </table>
     <div class="total">মোট: ${totalStu} জন</div>
 
-    <table class="seat">${body}</table>
+    <table class="seat ${two ? 'two' : ''}">${two ? '<colgroup><col style="width:15%"><col style="width:15%"><col style="width:40%"><col style="width:15%"><col style="width:15%"></colgroup>' : ''}${body}</table>
   </div>`;
 }
 </script>

@@ -71,20 +71,49 @@
 
   .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:1pt 8pt; margin-top:4pt; line-height:1.1; }
 
-  /* ---- সিটের ছক: তিন জোড়া, প্রতি জোড়ায় বামটি বাঁ দিকে, ডানটি ডান দিকে ---- */
-  table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2pt; }
+  /* ---- সিটের ছক: কাঠের বেঞ্চ (প্রতি জোড়া সিট = একটি বেঞ্চ) ---- */
+  table.seat { width:100%; border-collapse:separate; border-spacing:0 3.4mm; table-layout:fixed; margin-top:2pt; }
   table.seat tr { page-break-inside:avoid; }
-  table.seat td { height:11.7mm; padding:0 2pt 1.2mm; vertical-align:bottom; font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25pt; line-height:1; border-bottom:1.5pt solid #000; white-space:nowrap; }
-  /* ২ কলামে বেঞ্চ (সিটের ঘর) বড় */
-  table.seat.two td { height:15mm; font-size:32pt; padding-bottom:1.8mm; }
+  table.seat td {
+    position:relative; height:10mm; padding:0 3pt; vertical-align:middle; text-align:center;
+    font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25pt; line-height:1; white-space:nowrap;
+    color:#2B1606;
+    /* কাঠের দাগ + কাঠের রং */
+    background:
+      repeating-linear-gradient(180deg, rgba(90,50,15,.18) 0 1px, transparent 1px 3mm),
+      linear-gradient(180deg,#E6BC82 0%,#D3A05F 55%,#C08A4A 100%);
+    border:1.6pt solid #4A2A0C;
+    border-bottom:4.5pt solid #4A2A0C;           /* তক্তার সামনের মোটা ধার */
+    box-shadow:inset 0 2pt 0 rgba(255,255,255,.35);
+  }
+  /* একটি সারি ছাড়া একটি সারিতে একটু গাঢ় কাঠ */
+  table.seat tr.even td:not(.g):not(.blank):not(.door) {
+    background:
+      repeating-linear-gradient(180deg, rgba(90,50,15,.18) 0 1px, transparent 1px 3mm),
+      linear-gradient(180deg,#D9AC70 0%,#C79350 55%,#B37D3F 100%);
+  }
+  /* বাঁ সিট: বাঁ কোণা গোল + মাঝে ভাগ-রেখা */
+  table.seat td.l  { border-right:1.4pt solid #4A2A0C; border-radius:7px 0 0 7px; }
+  /* ডান সিট: ডান কোণা গোল */
+  table.seat td.rt { border-left:none; border-radius:0 7px 7px 0; }
+  /* পায়া: বেঞ্চের দুই প্রান্তে */
+  table.seat td.l::after,
+  table.seat td.rt::after { content:""; position:absolute; top:100%; width:3.2mm; height:2.8mm; background:#4A2A0C; border-radius:0 0 2px 2px; }
+  table.seat td.l::after  { left:9%; }
+  table.seat td.rt::after { right:9%; }
+  /* জোড়ার মাঝের পথ */
+  table.seat td.g { width:24pt; border:none; background:transparent !important; box-shadow:none; padding:0; }
+  table.seat td.g::after { display:none; }
+  /* ফাঁকা সিট */
+  table.seat td.blank { background:#F1E9DC !important; border-color:#9C8B73; border-bottom-width:3pt; border-style:dashed; box-shadow:none; }
+  table.seat td.blank::after { background:#9C8B73; }
+  /* ২ কলামে বেঞ্চ বড় */
+  table.seat.two td { height:13.5mm; font-size:32pt; }
   table.seat.two td.g { width:auto; }
-  table.seat.two td.door { font-size:26pt; padding-bottom:0; }
-  table.seat td.l { text-align:left; }
-  table.seat td.rt { text-align:right; }
-  table.seat td.g { width:24pt; border-bottom:none; background:#fff; padding:0; }
-  table.seat tr.odd td:not(.g) { background:var(--cream); }
-  table.seat td.blank { border-bottom-color:#eee; }
-  table.seat td.door { vertical-align:middle; padding-bottom:0; background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
+  /* DOOR */
+  table.seat td.door { vertical-align:middle; padding:0; background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; border-radius:7px; box-shadow:none; }
+  table.seat td.door::after { display:none; }
+  table.seat.two td.door { font-size:26pt; }
 
   /* কাগজের মাপ টুলবারের ড্রপডাউন থেকে JS দিয়ে বসে (নিচের #pageSize স্টাইল) */
   @media print {
@@ -231,7 +260,6 @@ async function loadPlans() {
   plans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   if (plans.length === 0) {
-    document.getElementById('msg').classList.remove('loading');
     document.getElementById('msg').classList.remove('loading');
     document.getElementById('msg').textContent = 'কোনো সিট প্লান পাওয়া যায়নি। সিট প্লান পেজে গিয়ে আগে সাবমিট করুন।';
     return;

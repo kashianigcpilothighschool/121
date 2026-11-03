@@ -1,11 +1,717 @@
-<script type="module">
+<!DOCTYPE html> 
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 লগইন প্যানেল</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1F2D50;
+      --ink-soft: #47537A;
+      --paper: #FAF6EC;
+      --paper-line: #E7DFC8;
+      --gold: #C79A47;
+      --gold-deep: #A87E33;
+      --sage: #3F7A63;
+      --sage-bg: #E4F0E9;
+      --brick: #B4432E;
+      --brick-bg: #FBE7E2;
+      --card: #FFFFFF;
+      --muted: #7A8399;
+      --radius: 14px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans Bengali', sans-serif;
+      background:
+        radial-gradient(circle at 12% 15%, rgba(199, 154, 71, 0.16), transparent 45%),
+        radial-gradient(circle at 88% 85%, rgba(63, 122, 99, 0.14), transparent 45%),
+        var(--paper);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-shape {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid rgba(31, 45, 80, 0.06);
+      animation: float 8s infinite ease-in-out;
+    }
+    .bg-shape:nth-child(1) { width: 260px; height: 260px; top: 6%; left: 6%; animation-delay: 0s; }
+    .bg-shape:nth-child(2) { width: 180px; height: 180px; top: 72%; right: 8%; animation-delay: 2.5s; }
+    .bg-shape:nth-child(3) { width: 120px; height: 120px; bottom: 15%; left: 14%; animation-delay: 5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-16px); }
+    }
+
+    .login-container {
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 38px,
+          var(--paper-line) 38px,
+          var(--paper-line) 39px
+        ),
+        var(--card);
+      border: 1px solid rgba(31, 45, 80, 0.08);
+      padding: 40px 36px;
+      border-radius: 20px;
+      box-shadow: 0 24px 48px rgba(31, 45, 80, 0.12), 0 2px 6px rgba(31, 45, 80, 0.06);
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      animation: slideUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 34px;
+      width: 2px;
+      height: 100%;
+      background: rgba(180, 67, 46, 0.14);
+      border-radius: 2px;
+    }
+
+    #signupStep.step-container.active,
+    .login-container:has(#signupStep.active) {
+      max-width: 560px;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .header { text-align: center; margin-bottom: 32px; }
+
+    .header .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--gold-deep);
+      background: rgba(199, 154, 71, 0.14);
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .header h2 {
+      font-family: 'Noto Serif Bengali', serif;
+      color: var(--ink);
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .header p { color: var(--muted); font-size: 14px; font-weight: 400; }
+
+    form { position: relative; z-index: 1; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group { position: relative; margin-bottom: 22px; }
+    .form-row .form-group { margin-bottom: 0; }
+    .form-row + .form-group,
+    .form-group + .form-row { margin-top: 22px; }
+
+    .form-group label {
+      position: absolute;
+      top: 50%;
+      left: 45px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 15px;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: var(--card);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 15px 18px 15px 45px;
+      border: 1.5px solid #E3E1D8;
+      border-radius: 11px;
+      font-size: 15px;
+      font-family: 'Noto Sans Bengali', sans-serif;
+      background: var(--card);
+      transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(199, 154, 71, 0.15);
+    }
+
+    .form-group input:focus + label,
+    .form-group input:not(:placeholder-shown) + label {
+      top: -9px;
+      left: 14px;
+      font-size: 11.5px;
+      color: var(--gold-deep);
+      padding: 0 7px;
+      font-weight: 600;
+    }
+
+    .form-group .icon {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #B7BCC9;
+      transition: color 0.25s ease;
+    }
+
+    .form-group input:focus ~ .icon { color: var(--gold-deep); }
+
+    .password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #B7BCC9;
+      transition: color 0.25s ease;
+    }
+    .password-toggle:hover { color: var(--gold-deep); }
+
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--ink) 0%, #2C3D6B 100%);
+      color: #fff;
+      border: none;
+      border-radius: 11px;
+      font-size: 15.5px;
+      font-weight: 600;
+      font-family: 'Noto Sans Bengali', sans-serif;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+      transition: left 0.5s;
+    }
+
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(31, 45, 80, 0.28); }
+    .login-btn:hover::before { left: 100%; }
+    .login-btn:active { transform: translateY(0); }
+    .login-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .login-btn.secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1.5px solid #DADFE8;
+      margin-top: 12px;
+    }
+    .login-btn.secondary:hover { box-shadow: 0 10px 24px rgba(31, 45, 80, 0.1); }
+
+    .loading { display: none; align-items: center; justify-content: center; gap: 10px; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error {
+      background: var(--brick-bg);
+      color: var(--brick);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      text-align: center;
+      margin-top: 18px;
+      border: 1px solid rgba(180, 67, 46, 0.25);
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .error.show { display: block; }
+
+    .info-msg {
+      background: var(--sage-bg);
+      color: var(--sage);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      text-align: center;
+      margin-top: 18px;
+      border: 1px solid rgba(63, 122, 99, 0.25);
+      display: none;
+    }
+    .info-msg.show { display: block; }
+
+    .forgot-password { text-align: center; margin-top: 18px; }
+    .forgot-password a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.25s ease;
+    }
+    .forgot-password a:hover { color: var(--gold-deep); text-decoration: underline; }
+
+    .switch-row {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+    .switch-row a {
+      color: var(--gold-deep);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .switch-row a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .login-container { padding: 30px 22px; margin: 8px; }
+      .header h2 { font-size: 24px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .form-row .form-group:first-child { margin-bottom: 22px; }
+    }
+
+    .success-animation {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(63, 122, 99, 0.92);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .success-check {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: white;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 38px; color: var(--sage);
+      animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    @keyframes successPop {
+      0% { transform: scale(0) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    .step-container { display: none; }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .otp-inputs input {
+      width: 100%;
+      aspect-ratio: 1;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      border: 1.5px solid #E3E1D8;
+      border-radius: 10px;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+    .otp-inputs input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(199, 154, 71, 0.15);
+    }
+
+    .otp-info {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .otp-info b { color: var(--ink); }
+
+    .resend-row { text-align: center; margin-top: 18px; font-size: 13.5px; color: var(--muted); }
+    .resend-row a { color: var(--gold-deep); font-weight: 600; text-decoration: none; cursor: pointer; }
+    .resend-row a.disabled { color: #C9CDD6; pointer-events: none; }
+
+    .back-link { text-align: center; margin-top: 10px; }
+    .back-link a { color: #A6ACBB; font-size: 12.5px; text-decoration: none; cursor: pointer; }
+    .back-link a:hover { color: var(--gold-deep); }
+
+    .class-select-label {
+      position: static;
+      display: block;
+      margin-bottom: 10px;
+      color: var(--ink);
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .class-checkbox-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 12px;
+      max-height: 190px;
+      overflow-y: auto;
+      border: 1.5px solid #E3E1D8;
+      border-radius: 11px;
+      padding: 10px 14px;
+      background: #FDFCF8;
+    }
+
+    .class-checkbox-group label {
+      position: static;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      pointer-events: auto;
+      transform: none;
+    }
+
+    .class-checkbox-group input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: var(--gold-deep);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      .class-checkbox-group { grid-template-columns: 1fr; }
+    }
+
+    /* ---- শ্রেণি/শাখা মাল্টি-সিলেক্ট ড্রপডাউন ---- */
+    .multiselect-dropdown {
+      position: relative;
+    }
+
+    .multiselect-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #E3E1D8;
+      border-radius: 11px;
+      background: var(--card);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      user-select: none;
+    }
+
+    .multiselect-trigger:hover { border-color: #D5D1C2; }
+
+    .multiselect-dropdown.open .multiselect-trigger {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(199, 154, 71, 0.15);
+    }
+
+    .multiselect-label {
+      font-size: 14px;
+      color: var(--ink-soft);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .multiselect-label.placeholder { color: #A6ACBB; }
+
+    .multiselect-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: rgba(199, 154, 71, 0.16);
+      color: var(--gold-deep);
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .multiselect-chevron {
+      flex-shrink: 0;
+      width: 11px;
+      height: 11px;
+      border-right: 2px solid #A6ACBB;
+      border-bottom: 2px solid #A6ACBB;
+      transform: rotate(45deg);
+      transition: transform 0.25s ease;
+      margin-top: -4px;
+    }
+
+    .multiselect-dropdown.open .multiselect-chevron {
+      transform: rotate(-135deg);
+      margin-top: 4px;
+    }
+
+    .multiselect-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 20;
+      background: var(--card);
+      border: 1.5px solid #E3E1D8;
+      border-radius: 12px;
+      box-shadow: 0 16px 32px rgba(31, 45, 80, 0.16);
+      padding: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .multiselect-dropdown.open .multiselect-panel { display: block; }
+
+    .multiselect-panel .class-checkbox-group {
+      border: none;
+      padding: 4px 6px;
+      max-height: none;
+      background: transparent;
+    }
+
+    .multiselect-panel .class-checkbox-group label {
+      border-radius: 7px;
+      padding: 7px 6px;
+    }
+
+    .multiselect-panel .class-checkbox-group label:hover {
+      background: rgba(199, 154, 71, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-shape"></div>
+  <div class="bg-shape"></div>
+  <div class="bg-shape"></div>
+
+  <div class="login-container" id="mainCard">
+
+    <!-- ধাপ ১: ইমেইল + পাসওয়ার্ড (লগইন) -->
+    <div id="loginStep">
+      <div class="header">
+        <span class="badge">এসএসসি কর্ণারে</span>
+        <h2>স্বাগতম</h2>
+        <p>আপনার অ্যাকাউন্টে প্রবেশ করুন</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <input type="email" id="email" placeholder=" " required>
+          <label for="email">ইমেইল ঠিকানা</label>
+          <span class="icon">✉️</span>
+        </div>
+
+        <div class="form-group">
+          <input type="password" id="password" placeholder=" " required>
+          <label for="password">পাসওয়ার্ড</label>
+          <span class="icon">🔒</span>
+          <span class="password-toggle" onclick="togglePassword('password', this)">👁️</span>
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span class="btn-text">প্রবেশ করুন</span>
+          <div class="loading">
+            <span class="spinner"></span>
+            <span>প্রবেশ করা হচ্ছে...</span>
+          </div>
+        </button>
+      </form>
+
+      <div class="error" id="loginError"></div>
+
+      <div class="forgot-password">
+        <a onclick="goToStep('forgotStep')">পাসওয়ার্ড ভুলে গেছেন?</a>
+      </div>
+
+      <div class="switch-row">
+        নতুন এখানে? <a onclick="goToStep('signupStep')">অ্যাকাউন্ট তৈরি করুন</a>
+      </div>
+    </div>
+
+    <!-- ধাপ ৩: সাইন আপ -->
+    <div class="step-container" id="signupStep">
+      <div class="header">
+        <span class="badge">নতুন নিবন্ধন</span>
+        <h2>অ্যাকাউন্ট তৈরি করুন</h2>
+        <p>নতুন অ্যাকাউন্ট খুলতে তথ্য দিন</p>
+      </div>
+
+      <form id="signupForm">
+        <div class="form-row">
+          <div class="form-group">
+            <input type="text" id="signupName" placeholder=" " required>
+            <label for="signupName">পূর্ণ নাম</label>
+            <span class="icon">🧑</span>
+          </div>
+
+          <div class="form-group">
+            <input type="tel" id="signupMobile" placeholder=" " required pattern="^[0-9+\-\s]{6,15}$">
+            <label for="signupMobile">মোবাইল নম্বর</label>
+            <span class="icon">📱</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="email" id="signupEmail" placeholder=" " required>
+          <label for="signupEmail">ইমেইল ঠিকানা</label>
+          <span class="icon">✉️</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <input type="password" id="signupPassword" placeholder=" " required minlength="6">
+            <label for="signupPassword">পাসওয়ার্ড</label>
+            <span class="icon">🔒</span>
+            <span class="password-toggle" onclick="togglePassword('signupPassword', this)">👁️</span>
+          </div>
+
+          <div class="form-group">
+            <input type="password" id="signupConfirmPassword" placeholder=" " required minlength="6">
+            <label for="signupConfirmPassword">নিশ্চিত করুন</label>
+            <span class="icon">🔒</span>
+            <span class="password-toggle" onclick="togglePassword('signupConfirmPassword', this)">👁️</span>
+          </div>
+        </div>
+
+        <!-- ক্লাস/শাখা নির্বাচন (মাল্টি-সিলেক্ট ড্রপডাউন) -->
+        <div class="form-group" style="margin-bottom: 6px;">
+          <label class="class-select-label">🏫 কোন কোন ক্লাস/শাখার জন্য অ্যাক্সেস চান?</label>
+          <div class="multiselect-dropdown" id="classMultiselect">
+            <div class="multiselect-trigger" id="classTrigger" onclick="toggleClassDropdown(event)">
+              <span class="multiselect-label placeholder" id="classLabel">শ্রেণি ও শাখা নির্বাচন করুন</span>
+              <span class="multiselect-chevron"></span>
+            </div>
+            <div class="multiselect-panel" id="classPanel">
+              <div id="classCheckboxGroup" class="class-checkbox-group">
+                <label><input type="checkbox" class="classAccessBox" value="6_A"> ৬ষ্ঠ শ্রেণি - শাখা ক</label>
+                <label><input type="checkbox" class="classAccessBox" value="6_B"> ৬ষ্ঠ শ্রেণি - শাখা খ</label>
+                <label><input type="checkbox" class="classAccessBox" value="6_C"> ৬ষ্ঠ শ্রেণি - শাখা গ</label>
+                <label><input type="checkbox" class="classAccessBox" value="7_A"> ৭ম শ্রেণি - শাখা ক</label>
+                <label><input type="checkbox" class="classAccessBox" value="7_B"> ৭ম শ্রেণি - শাখা খ</label>
+                <label><input type="checkbox" class="classAccessBox" value="7_C"> ৭ম শ্রেণি - শাখা গ</label>
+                <label><input type="checkbox" class="classAccessBox" value="8_A"> ৮ম শ্রেণি - শাখা ক</label>
+                <label><input type="checkbox" class="classAccessBox" value="8_B"> ৮ম শ্রেণি - শাখা খ</label>
+                <label><input type="checkbox" class="classAccessBox" value="8_C"> ৮ম শ্রেণি - শাখা গ</label>
+                <label><input type="checkbox" class="classAccessBox" value="9_SCI"> ৯ম শ্রেণি - বিজ্ঞান</label>
+                <label><input type="checkbox" class="classAccessBox" value="9_HUM"> ৯ম শ্রেণি - মানবিক</label>
+                <label><input type="checkbox" class="classAccessBox" value="9_BUS"> ৯ম শ্রেণি - ব্যবসায় শিক্ষা</label>
+                <label><input type="checkbox" class="classAccessBox" value="10_SCI"> ১০ম শ্রেণি - বিজ্ঞান</label>
+                <label><input type="checkbox" class="classAccessBox" value="10_HUM"> ১০ম শ্রেণি - মানবিক</label>
+                <label><input type="checkbox" class="classAccessBox" value="10_BUS"> ১০ম শ্রেণি - ব্যবসায় শিক্ষা</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn" id="signupBtn" style="margin-top: 22px;">
+          <span class="btn-text">সাইন আপ করুন</span>
+          <div class="loading">
+            <span class="spinner"></span>
+            <span>তৈরি করা হচ্ছে...</span>
+          </div>
+        </button>
+      </form>
+
+      <div class="error" id="signupError"></div>
+      <div class="info-msg" id="signupInfo"></div>
+
+      <div class="switch-row">
+        আগে থেকেই অ্যাকাউন্ট আছে? <a onclick="backToLogin()">লগইন করুন</a>
+      </div>
+    </div>
+
+    <!-- ধাপ ৪: পাসওয়ার্ড ভুলে গেছেন - ইমেইল -->
+    <div class="step-container" id="forgotStep">
+      <div class="header">
+        <h2>পাসওয়ার্ড রিসেট</h2>
+        <p>আপনার ইমেইল ঠিকানা দিন</p>
+      </div>
+
+      <form id="forgotForm">
+        <div class="form-group">
+          <input type="email" id="forgotEmail" placeholder=" " required>
+          <label for="forgotEmail">ইমেইল ঠিকানা</label>
+          <span class="icon">✉️</span>
+        </div>
+
+        <button type="submit" class="login-btn" id="forgotBtn">
+          <span class="btn-text">রিসেট লিংক পাঠান</span>
+          <div class="loading">
+            <span class="spinner"></span>
+            <span>পাঠানো হচ্ছে...</span>
+          </div>
+        </button>
+      </form>
+
+      <div class="error" id="forgotError"></div>
+      <div class="info-msg" id="forgotInfo"></div>
+
+      <div class="back-link">
+        <a onclick="backToLogin()">← লগইনে ফিরে যান</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-animation" id="successAnimation">
+    <div class="success-check">✓</div>
+  </div>
+
+  <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-           signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+           signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
            from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-  // ===== Config: এখানে নিজের Firebase config বসান =====
+  // Firebase Console → Project settings → Your apps থেকে আসল মান বসান
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "ssc-seat-plan.firebaseapp.com",
@@ -20,13 +726,10 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // ---------- সাধারণ ইউটিলিটি ----------
   function authMessage(err) {
     const map = {
       "auth/invalid-credential": "ইমেইল বা পাসওয়ার্ড ভুল।",
       "auth/invalid-email": "ইমেইল ঠিকানাটি সঠিক নয়।",
-      "auth/user-not-found": "এই ইমেইলে কোনো অ্যাকাউন্ট নেই।",
-      "auth/wrong-password": "পাসওয়ার্ড ভুল।",
       "auth/email-already-in-use": "এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।",
       "auth/weak-password": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
       "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে, কিছুক্ষণ পরে আবার চেষ্টা করুন।",
@@ -41,20 +744,15 @@
     btn.querySelector('.btn-text').style.display = on ? 'none' : 'block';
     btn.querySelector('.loading').style.display = on ? 'flex' : 'none';
   }
-
-  function showError(id, message) {
+  function flash(id, message, ms) {
     const el = document.getElementById(id);
     el.textContent = message;
     el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 5000);
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), ms);
   }
-
-  function showInfo(id, message) {
-    const el = document.getElementById(id);
-    el.textContent = message;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 6000);
-  }
+  const showError = (id, m) => flash(id, m, 5000);
+  const showInfo = (id, m) => flash(id, m, 6000);
 
   function showSuccess() {
     const s = document.getElementById('successAnimation');
@@ -64,31 +762,23 @@
 
   window.togglePassword = function (inputId, toggleEl) {
     const input = document.getElementById(inputId);
-    if (input.type === 'password') { input.type = 'text'; toggleEl.textContent = '🙈'; }
-    else { input.type = 'password'; toggleEl.textContent = '👁️'; }
+    const hidden = input.type === 'password';
+    input.type = hidden ? 'text' : 'password';
+    toggleEl.textContent = hidden ? '🙈' : '👁️';
   };
 
   function updateCardWidth(stepId) {
     document.getElementById('mainCard').style.maxWidth = (stepId === 'signupStep') ? '560px' : '460px';
   }
-
   window.goToStep = function (stepId) {
     document.getElementById('loginStep').style.display = 'none';
-    document.querySelectorAll('.step-container').forEach(el => {
-      el.style.display = 'none';
-      el.classList.remove('active');
-    });
-    const target = document.getElementById(stepId);
-    target.style.display = 'block';
-    target.classList.add('active');
+    document.querySelectorAll('.step-container').forEach(el => { el.style.display = 'none'; el.classList.remove('active'); });
+    const t = document.getElementById(stepId);
+    t.style.display = 'block'; t.classList.add('active');
     updateCardWidth(stepId);
   };
-
   window.backToLogin = function () {
-    document.querySelectorAll('.step-container').forEach(el => {
-      el.style.display = 'none';
-      el.classList.remove('active');
-    });
+    document.querySelectorAll('.step-container').forEach(el => { el.style.display = 'none'; el.classList.remove('active'); });
     document.getElementById('loginStep').style.display = 'block';
     updateCardWidth('loginStep');
   };
@@ -98,12 +788,10 @@
     e.stopPropagation();
     document.getElementById('classMultiselect').classList.toggle('open');
   };
-
   document.addEventListener('click', function (e) {
     const dd = document.getElementById('classMultiselect');
     if (dd && dd.classList.contains('open') && !dd.contains(e.target)) dd.classList.remove('open');
   });
-
   function updateClassLabel() {
     const selected = Array.from(document.querySelectorAll('.classAccessBox:checked'));
     const label = document.getElementById('classLabel');
@@ -112,7 +800,7 @@
       label.classList.add('placeholder');
     } else {
       const names = selected.map(cb => cb.parentElement.textContent.trim());
-      label.textContent = (selected.length === 1) ? names[0] : `${selected.length} টি শ্রেণি/শাখা নির্বাচিত`;
+      label.textContent = selected.length === 1 ? names[0] : `${selected.length} টি শ্রেণি/শাখা নির্বাচিত`;
       label.classList.remove('placeholder');
     }
   }
@@ -125,11 +813,10 @@
     const password = document.getElementById("password").value;
     const btn = document.getElementById("loginBtn");
     setLoading(btn, true);
-
+    let redirecting = false;
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const snap = await getDoc(doc(db, "users", cred.user.uid));
-
       if (!snap.exists()) {
         await signOut(auth);
         showError('loginError', "❌ অ্যাকাউন্টের তথ্য পাওয়া যায়নি। Admin-এর সাথে যোগাযোগ করুন।");
@@ -143,12 +830,13 @@
           : "❌ আপনার অ্যাকাউন্ট নিষ্ক্রিয়।");
         return;
       }
+      redirecting = true;
       showSuccess();
       setTimeout(() => { window.location.href = SEAT_PLAN_PAGE; }, 1000);
     } catch (err) {
       showError('loginError', authMessage(err));
     } finally {
-      setLoading(btn, false);
+      if (!redirecting) setLoading(btn, false);
     }
   });
 
@@ -169,45 +857,43 @@
 
     const btn = document.getElementById("signupBtn");
     setLoading(btn, true);
-
+    let cred = null;
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      // Rules অনুযায়ী: status অবশ্যই 'pending', role অবশ্যই 'user'
+      cred = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, "users", cred.user.uid), {
-        name: name,
-        email: email,
-        mobile: mobile,
+        name, email, mobile,
         classAccess: selectedClasses,
         status: 'pending',
         role: 'user',
         createdAt: serverTimestamp()
       });
       await signOut(auth);
-
       document.getElementById('signupForm').reset();
       updateClassLabel();
       document.getElementById('classMultiselect').classList.remove('open');
       showInfo('signupInfo', "✅ অ্যাকাউন্ট তৈরির অনুরোধ পাঠানো হয়েছে। Admin অনুমোদন দিলে লগইন করতে পারবেন।");
       setTimeout(() => window.backToLogin(), 3000);
     } catch (err) {
+      if (cred) { try { await deleteUser(cred.user); } catch (_) {} }
       showError('signupError', authMessage(err));
     } finally {
       setLoading(btn, false);
     }
   });
 
-  // ---------- পাসওয়ার্ড রিসেট (Firebase email link) ----------
+  // ---------- পাসওয়ার্ড রিসেট (ইমেইল লিংক) ----------
   document.getElementById("forgotForm").addEventListener("submit", async function (e) {
     e.preventDefault();
     const email = document.getElementById("forgotEmail").value.trim();
     const btn = document.getElementById("forgotBtn");
     setLoading(btn, true);
-
+    const okMsg = "✅ ওই ইমেইলে অ্যাকাউন্ট থাকলে রিসেট লিংক পাঠানো হয়েছে (Spam ফোল্ডারও দেখুন)।";
     try {
       await sendPasswordResetEmail(auth, email);
-      showInfo('forgotInfo', "✅ পাসওয়ার্ড রিসেটের লিংক আপনার ইমেইলে পাঠানো হয়েছে (Spam ফোল্ডারও দেখুন)।");
+      showInfo('forgotInfo', okMsg);
     } catch (err) {
-      showError('forgotError', authMessage(err));
+      if (err.code === 'auth/user-not-found') showInfo('forgotInfo', okMsg);
+      else showError('forgotError', authMessage(err));
     } finally {
       setLoading(btn, false);
     }
@@ -218,3 +904,5 @@
     input.addEventListener('blur', function () { this.parentElement.style.transform = 'translateY(0)'; });
   });
 </script>
+</body>
+</html>

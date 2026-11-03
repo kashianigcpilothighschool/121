@@ -10,10 +10,10 @@
   @font-face { font-family:'Kalpurush'; src:url('https://cdn.jsdelivr.net/npm/@hixbe/kalpurush@5.2.5/files/kalpurush.woff2') format('woff2'); font-weight:400; font-display:swap; }
   :root { --navy:#1D2B4F; --gold:#B9822E; --band:#DCEFDC; --cream:#FFF2CC; --sky:#DDEBF7; }
   * { box-sizing: border-box; }
-  body { font-family:'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif; margin:0; background:#EEF1F8; color:#000; }
+  body { font-family:'Times New Roman',Times,'SolaimanLipi','Kalpurush','Noto Sans Bengali',serif; margin:0; background:#EEF1F8; color:#000; }
 
   /* ---- টুলবার (প্রিন্টে দেখাবে না) ---- */
-  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'SolaimanLipi','Kalpurush',sans-serif; }
+  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'Times New Roman',Times,'SolaimanLipi','Kalpurush',sans-serif; }
   .toolbar select, .toolbar button { font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:none; }
   .toolbar button { background:var(--gold); color:#fff; font-weight:600; cursor:pointer; }
   .toolbar button.alt { background:#fff; color:var(--navy); }
@@ -54,13 +54,13 @@
   /* ---- সিটের ছক: তিন জোড়া, প্রতি জোড়ায় বামটি বাঁ দিকে, ডানটি ডান দিকে ---- */
   table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2pt; }
   table.seat tr { page-break-inside:avoid; }
-  table.seat td { height:11.7mm; padding:0 2pt; font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25pt; line-height:1; border-bottom:1.5pt solid #000; white-space:nowrap; }
+  table.seat td { height:11.7mm; padding:0 2pt 1.2mm; vertical-align:bottom; font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25pt; line-height:1; border-bottom:1.5pt solid #000; white-space:nowrap; }
   table.seat td.l { text-align:left; }
   table.seat td.rt { text-align:right; }
   table.seat td.g { width:24pt; border-bottom:none; background:#fff; padding:0; }
   table.seat tr.odd td:not(.g) { background:var(--cream); }
   table.seat td.blank { border-bottom-color:#eee; }
-  table.seat td.door { background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
+  table.seat td.door { vertical-align:middle; padding-bottom:0; background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
 
   @page { size:8.5in 14in; margin:0; }
   @media print {

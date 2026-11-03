@@ -747,6 +747,7 @@
                     <button type="button" class="test-btn" id="extraBtn6" onclick="redirectToButton('btn6')">
                         বাটন ৬
                     </button>
+                    <button type="button" class="test-btn" id="adminLinkBtn" style="display:none" onclick="window.location.href='admin.html'">অ্যাডমিন প্যানেল</button>
                     <button type="button" class="test-btn" onclick="logout()">লগআউট</button>
                 </div>
             </div>
@@ -761,12 +762,12 @@
 
         // login.html-এর config-এর সাথে হুবহু এক
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
+            apiKey: "AIzaSyBEK87giX4dJunYNjD6aH6VYXQ5IaCVgx8",
             authDomain: "ssc-seat-plan.firebaseapp.com",
             projectId: "ssc-seat-plan",
-            storageBucket: "ssc-seat-plan.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            storageBucket: "ssc-seat-plan.firebasestorage.app",
+            messagingSenderId: "56229919406",
+            appId: "1:56229919406:web:1b33d7f269214d03efcb3f"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -784,6 +785,10 @@
                         return;
                     }
                     window.currentUserProfile = snap.data();
+                    if (snap.data().role === 'admin') {
+                        const ab = document.getElementById('adminLinkBtn');
+                        if (ab) ab.style.display = '';
+                    }
                     resolve({ auth, db, doc, setDoc, serverTimestamp });
                 } catch (err) {
                     console.error('ইউজার যাচাইয়ে ত্রুটি:', err);
@@ -802,7 +807,7 @@
         // ========================
         // "প্রিন্ট করুন" বাটনের জন্য Apps Script Web App URL
         // ========================
-        const PRINT_URL = 'https://ssc-phi-seven.vercel.app/seat_prnt';
+       const PRINT_URL = 'seat-print.html';
 
         // ========================
         // প্রতিটি টুলবার বাটনের জন্য আলাদা URL (এখানে পরিবর্তন করুন)

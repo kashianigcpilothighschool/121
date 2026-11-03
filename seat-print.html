@@ -4,39 +4,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>সিট প্লান প্রিন্ট</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ফন্ট: কালপুরুষ (kalpurush.woff2 ফাইল এই HTML-এর পাশে থাকতে হবে) */
+  @font-face { font-family:'Kalpurush'; src:url('kalpurush.woff2') format('woff2'), url('kalpurush.woff') format('woff'); font-weight:400; font-display:swap; }
+  /* সোলিমানি লিপি: কম্পিউটারে ইনস্টল থাকলে অথবা SolaimanLipi.ttf ফাইল পাশে রাখলে কাজ করবে */
+  @font-face { font-family:'SolaimanLipi'; src:local('SolaimanLipi'), local('Solaiman Lipi'), url('SolaimanLipi.ttf') format('truetype'); font-weight:400; }
   :root { --navy:#1D2B4F; --gold:#B9822E; --band:#DCEFDC; --cream:#FFF2CC; --sky:#DDEBF7; }
   * { box-sizing: border-box; }
-  body { font-family:'Noto Serif Bengali','Hind Siliguri',serif; margin:0; background:#EEF1F8; color:#000; }
+  body { font-family:'Kalpurush','SolaimanLipi','Noto Sans Bengali',sans-serif; margin:0; background:#EEF1F8; color:#000; }
 
   /* ---- টুলবার (প্রিন্টে দেখাবে না) ---- */
-  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'Hind Siliguri',sans-serif; }
+  .toolbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff; padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-family:'Kalpurush','SolaimanLipi',sans-serif; }
   .toolbar select, .toolbar button { font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:none; }
   .toolbar button { background:var(--gold); color:#fff; font-weight:600; cursor:pointer; }
   .toolbar button.alt { background:#fff; color:var(--navy); }
-  #msg { padding:30px; text-align:center; font-family:'Hind Siliguri',sans-serif; }
+  #msg { padding:30px; text-align:center; }
 
   /* ---- Legal পাতা (পুরোনো PDF-এর মাপ: 8.5in x 14in) ---- */
   .page { background:#fff; width:8.5in; min-height:14in; margin:16px auto; padding:0.25in 0.3in; box-shadow:0 4px 16px rgba(0,0,0,.15); page-break-after:always; }
   .page.hidden { display:none; }
+  .page { line-height:1.05; }
 
-  .h1 { text-align:center; font-size:32pt; font-weight:700; margin:0 0 6pt; line-height:1.25; }
-  .h2 { text-align:center; font-size:21pt; font-weight:500; margin:4pt 0; line-height:1.25; }
-  .row-between { display:flex; justify-content:space-between; font-size:19pt; font-weight:700; border-bottom:2.5pt solid #000; padding:8pt 0 4pt; margin-top:10pt; }
-  .venue { font-size:29pt; font-weight:700; margin:8pt 0 8pt; line-height:1.25; }
+  .h1 { text-align:center; font-size:32pt; font-weight:700; margin:0 0 2pt; line-height:1.05; }
+  .h2 { text-align:center; font-size:21pt; font-weight:500; margin:0; line-height:1.1; }
+  .row-between { display:flex; justify-content:space-between; font-size:19pt; font-weight:700; border-bottom:2.5pt solid #000; padding:4pt 0 2pt; margin-top:6pt; line-height:1.05; }
+  .venue { font-size:29pt; font-weight:700; margin:4pt 0 4pt; line-height:1.05; }
 
-  .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:29pt; font-weight:700; padding:4pt 0; }
+  .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:29pt; font-weight:700; padding:1pt 0; line-height:1.05; }
   table.info { width:100%; border-collapse:collapse; font-size:19pt; font-weight:600; }
-  table.info td { border:1px solid #000; padding:6pt 8pt; }
+  table.info td { border:1px solid #000; padding:2pt 8pt; line-height:1.05; }
   table.info td.mid { width:30%; text-align:center; font-size:28pt; font-weight:700; }
   table.info td.side { width:35%; }
   table.info td.side.r { text-align:right; }
-  .building { width:44%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:20pt; font-weight:600; padding:4pt 4pt; }
+  .building { width:44%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:20pt; font-weight:600; padding:1pt 4pt; line-height:1.05; }
 
-  table.sch { width:100%; border-collapse:collapse; margin-top:12pt; }
-  table.sch th { font-size:24pt; font-weight:700; padding:4pt 4pt; border-bottom:2.5pt solid #000; }
-  table.sch td { font-size:18pt; padding:0 4pt; height:13mm; border-bottom:1px solid #000; }
+  table.sch { width:100%; border-collapse:collapse; margin-top:6pt; }
+  table.sch th { font-size:24pt; font-weight:700; padding:1pt 4pt; line-height:1.05; border-bottom:2.5pt solid #000; }
+  table.sch td { font-size:18pt; padding:0 4pt; height:9mm; line-height:1.05; border-bottom:1px solid #000; }
   table.sch tr.alt td { background:#F2F2F2; }
   table.sch td.name { text-align:left; }
   table.sch td.roll { text-align:center; font-weight:700; font-size:21pt; font-family:'Times New Roman',Times,serif; }
@@ -46,7 +50,7 @@
   table.sch th:nth-child(2) { text-align:center; }
   table.sch th:nth-child(3) { text-align:right; }
 
-  .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:4pt 8pt; margin-top:8pt; }
+  .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:1pt 8pt; margin-top:4pt; line-height:1.1; }
 
   /* ---- সিটের ছক: তিন জোড়া, প্রতি জোড়ায় বামটি বাঁ দিকে, ডানটি ডান দিকে ---- */
   table.seat { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:2pt; }
@@ -57,7 +61,7 @@
   table.seat td.g { width:24pt; border-bottom:none; background:#fff; padding:0; }
   table.seat tr.odd td:not(.g) { background:var(--cream); }
   table.seat td.blank { border-bottom-color:#eee; }
-  table.seat td.door { background:var(--navy) !important; color:#fff; font-family:'Hind Siliguri',sans-serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
+  table.seat td.door { background:var(--navy) !important; color:#fff; font-family:'Times New Roman',Times,serif; font-size:19pt; text-align:center; letter-spacing:.5pt; border:none; }
 
   @page { size:8.5in 14in; margin:0; }
   @media print {

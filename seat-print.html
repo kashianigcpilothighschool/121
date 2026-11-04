@@ -107,9 +107,10 @@
   .pane[hidden] { display:none; }
   .fg { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:12px 14px; }
   .fl { display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--ink-soft); font-weight:500; }
-  .dlg input { font:inherit; font-size:14.5px; color:var(--ink); height:38px; width:100%; min-width:0; padding:0 11px; border:1px solid var(--line); border-radius:9px; background:#fff; }
-  .dlg input:hover { border-color:#BCC4D3; }
-  .dlg input:focus-visible { outline:none; border-color:var(--focus); box-shadow:0 0 0 3px rgba(47,111,237,.18); }
+  .dlg input, .dlg select { font:inherit; font-size:14.5px; color:var(--ink); height:38px; width:100%; min-width:0; padding:0 11px; border:1px solid var(--line); border-radius:9px; background:#fff; }
+  .dlg select { cursor:pointer; }
+  .dlg input:hover, .dlg select:hover { border-color:#BCC4D3; }
+  .dlg input:focus-visible, .dlg select:focus-visible { outline:none; border-color:var(--focus); box-shadow:0 0 0 3px rgba(47,111,237,.18); }
   .hint { margin:12px 0 0; font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
   .rows { display:flex; flex-direction:column; gap:8px; }
   .rh, .rw { display:grid; gap:8px; align-items:center; }
@@ -221,7 +222,7 @@
   .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:1pt 8pt; margin-top:4pt; line-height:1.1; }
 
   /* ---- সিটের ছক: কাঠের বেঞ্চ (প্রতি জোড়া সিট = একটি বেঞ্চ) ---- */
-  table.seat { width:100%; border-collapse:separate; border-spacing:0 3.4mm; table-layout:fixed; margin-top:2pt; }
+  table.seat { width:100%; border-collapse:separate; border-spacing:0 2.2mm; table-layout:fixed; margin-top:2pt; }
   table.seat tr { page-break-inside:avoid; }
   table.seat td {
     position:relative; height:10mm; padding:0 3pt; vertical-align:middle; text-align:center;
@@ -247,7 +248,7 @@
   table.seat td.rt { border-left:none; border-radius:0 7px 7px 0; }
   /* পায়া: বেঞ্চের দুই প্রান্তে */
   table.seat td.l::after,
-  table.seat td.rt::after { content:""; position:absolute; top:100%; width:3.2mm; height:2.8mm; background:#4A2A0C; border-radius:0 0 2px 2px; }
+  table.seat td.rt::after { content:""; position:absolute; top:100%; width:3.2mm; height:1.6mm; background:#4A2A0C; border-radius:0 0 2px 2px; }
   table.seat td.l::after  { left:9%; }
   table.seat td.rt::after { right:9%; }
   /* জোড়ার মাঝের পথ */
@@ -376,7 +377,7 @@
     <p class="dlg-err" id="editErr" role="alert"></p>
     <div class="dlg-foot">
       <span class="dlg-note">কেন্দ্রের তথ্য এই ব্রাউজারে সংরক্ষিত হয়। কক্ষ, স্কুল ও সিটের তথ্য Firestore-এ সংরক্ষিত হয় এবং শুধু এই কক্ষে প্রযোজ্য।</span>
-      <a class="btn" id="editLink" href="seat-plan.html">সিট প্লান পেজে খুলুন</a>
+      <a class="btn" id="editLink" href="seat-plan.html">সিট প্লান পেজে যান</a>
       <button type="button" class="btn" id="editCancel">বাতিল</button>
       <button type="submit" class="btn primary" id="editSave">সংরক্ষণ</button>
     </div>
@@ -557,6 +558,14 @@ async function loadPlans() {
   const start = plans.find(p => p.id === wanted) ? wanted : latestId;
   showOne(start);
   fitPages();
+
+  // সিট প্লান পেজের "এডিট করুন" বোতাম থেকে এলে (?room=...&edit=1) সরাসরি এডিট ডায়ালগ খুলবে
+  const sp = new URLSearchParams(location.search);
+  if (sp.get('edit') === '1') {
+    try { history.replaceState(null, '', location.pathname + (wanted ? '?room=' + encodeURIComponent(wanted) : '')); } catch (_) {}
+    if (plans.find(p => p.id === wanted)) openEdit('room');
+    else toast('এই কক্ষটি এখনো সাবমিট করা হয়নি। আগে সিট প্লান পেজে সাবমিট করুন।');
+  }
 }
 
 // ---- একটি কক্ষ দেখানো + নেভিগেশন ও তথ্য-পট্টি হালনাগাদ ----
@@ -717,9 +726,18 @@ const CENTER_FIELDS = [
   ['code', 'কেন্দ্র কোড'], ['mobile', 'মোবাইল নম্বর'], ['venue', 'ভেন্যু']
 ];
 const ROOM_FIELDS = [
-  ['roomNumber', 'কক্ষ নং'], ['gender', 'ধরন (ছাত্র/ছাত্রী)'], ['direction', 'দিক'], ['department', 'বিভাগ'],
+  ['roomNumber', 'কক্ষ নং'], ['gender', 'বালক / বালিকা'], ['direction', 'বসার দিক'], ['department', 'বিভাগ'],
   ['building', 'ভবন'], ['floor', 'তলা'], ['benchCount', 'বেঞ্চের সংখ্যা']
 ];
+// সিট প্লান পেজের (seat-plan.html) ড্রপডাউনের সাথে হুবহু একই তালিকা
+const ROOM_OPTIONS = {
+  gender: ['বালক', 'বালিকা', 'বালক ও বালিকা'],
+  department: ['বিজ্ঞান', 'মানবিক', 'ব্যবসায় শিক্ষা', 'বিজ্ঞান ও মানবিক', 'সকল বিভাগ'],
+  building: ['পশ্চিম পার্শ্বের ভবন', 'পূর্ব পার্শ্বের ভবন', 'উত্তর পার্শ্বের ভবন', 'দক্ষিণ পার্শ্বের ভবন', 'প্রধান ভবন'],
+  floor: [' নিচতলা', '২য় তলা', '৩য় তলা', '৪র্থ তলা'],
+  direction: ['উত্তর মুখী', 'দক্ষিণ মুখী', 'পূর্ব মুখী', 'পশ্চিম মুখী']
+};
+const SELECT_FIELDS = Object.keys(ROOM_OPTIONS);
 const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
 let draft = null, editId = null, editDirty = false, editTab = 'room';
 
@@ -767,9 +785,18 @@ function renderEdit() {
   const fld = (path, val, attrs) => '<input data-path="' + path + '" value="' + esc(val) + '" ' + (attrs || '') + '>';
   const delBtn = (act, i, c) => '<button type="button" class="ix" data-act="' + act + '" data-i="' + i + '"' + (c !== undefined ? ' data-c="' + c + '"' : '') + ' aria-label="সারিটি মুছুন">' + ICON_X + '</button>';
 
+  // ড্রপডাউনের তালিকায় বর্তমান মান না থাকলে (পুরোনো ডেটা) সেটি যোগ করা হয়, যাতে ভুলে বদলে না যায়
+  const roomCtl = k => {
+    if (!SELECT_FIELDS.includes(k)) return fld('room.' + k, d.room[k], k === 'benchCount' ? 'inputmode="numeric"' : '');
+    const cur = String(d.room[k] ?? '');
+    const list = (cur === '' || ROOM_OPTIONS[k].includes(cur)) ? ROOM_OPTIONS[k] : [cur].concat(ROOM_OPTIONS[k]);
+    return '<select data-path="room.' + k + '">' + (cur === '' ? '<option value="" selected>নির্বাচন করুন</option>' : '') +
+      list.map(o => '<option value="' + esc(o) + '"' + (o === cur ? ' selected' : '') + '>' + esc(String(o).trim()) + '</option>').join('') + '</select>';
+  };
   const room = '<div class="fg">' + ROOM_FIELDS.map(([k, l]) =>
-      '<label class="fl">' + l + fld('room.' + k, d.room[k], k === 'benchCount' ? 'inputmode="numeric"' : '') + '</label>').join('') + '</div>' +
-    '<p class="hint">বেঞ্চের সংখ্যা শুধু পাতার তথ্য-ঘরে ছাপা হয়। সিটের সারি তৈরি হয় "সিট (কলাম)" ট্যাবের সংখ্যা থেকে।</p>';
+      '<label class="fl">' + l + roomCtl(k) + '</label>').join('') + '</div>' +
+    '<p class="hint">বেঞ্চের সংখ্যা শুধু পাতার তথ্য-ঘরে ছাপা হয়। সিটের সারি তৈরি হয় "সিট (কলাম)" ট্যাবের সংখ্যা থেকে।<br>' +
+    'সতর্কতা: কক্ষ নং, ভবন বা তলা বদলালে সিট প্লান পেজ থেকে একই কক্ষ আবার সাবমিট করলে আলাদা নতুন কক্ষ তৈরি হবে, কারণ কক্ষের আইডি এই তিনটি থেকে তৈরি হয়।</p>';
 
   const schools = '<div class="rows"><div class="rh sch"><span>স্কুলের নাম</span><span>শুরু রোল</span><span>শেষ রোল</span><span>সংখ্যা</span><span></span></div>' +
     d.schools.map((s, i) => '<div class="rw sch">' +
@@ -829,7 +856,7 @@ function openEdit(tab) {
   editId = p.id; draft = makeDraft(p); editDirty = false; editTab = tab || 'room';
   $('editSub').textContent = 'কক্ষ ' + bn(p.roomInfo?.roomNumber ?? '') + (p.roomInfo?.building ? ' — ' + p.roomInfo.building : '');
   $('editErr').textContent = '';
-  $('editLink').href = 'seat-plan.html?room=' + encodeURIComponent(p.id);
+  $('editLink').href = 'seat-plan.html';
   renderEdit();
   editDlg.showModal();
 }
@@ -896,7 +923,8 @@ async function saveEdit() {
 
   // কক্ষ
   const room = {};
-  ROOM_FIELDS.forEach(([k]) => { room[k] = String(d.room[k] ?? '').trim(); });
+  // ড্রপডাউনের মান হুবহু রাখা হয় (সিট প্লান পেজের মতো); বাকিগুলোর দুই পাশের ফাঁকা বাদ
+  ROOM_FIELDS.forEach(([k]) => { room[k] = SELECT_FIELDS.includes(k) ? String(d.room[k] ?? '') : String(d.room[k] ?? '').trim(); });
   if (!room.roomNumber) return fail('room', 'কক্ষ নং লিখুন।');
   const bench = room.benchCount === '' ? 0 : toNum(room.benchCount);
   if (isNaN(bench)) return fail('room', 'বেঞ্চের সংখ্যা সংখ্যায় লিখুন।');
@@ -943,9 +971,12 @@ async function saveEdit() {
     if (k === 'roomNumber' && typeof o === 'number' && /^\d+$/.test(bnToEn(v))) v = Number(bnToEn(v));
     if (String(o ?? '') !== String(v)) updates['roomInfo.' + k] = v;
   });
-  const newSchools = schools.map(s => ({ ...((orig.schools || [])[s._o] || {}), name: s.name, startRoll: s.startRoll, endRoll: s.endRoll, studentCount: s.studentCount }));
+  // নতুন যোগ করা স্কুলের id বসে (পুরোনোগুলোর id অপরিবর্তিত)
+  const newSchools = schools.map((s, i) => ({ ...(s._o === undefined ? { id: i + 1 } : ((orig.schools || [])[s._o] || {})), name: s.name, startRoll: s.startRoll, endRoll: s.endRoll, studentCount: s.studentCount }));
   if (stable(newSchools) !== stable(orig.schools || [])) updates.schools = newSchools;
   if (total !== (orig.totals?.totalStudents ?? 0)) updates['totals.totalStudents'] = total;
+  const totalSeats = cols.reduce((a, rs) => a + rs.reduce((b, rg) => b + rg.count, 0), 0);
+  if (totalSeats !== (orig.totals?.totalSeats ?? 0)) updates['totals.totalSeats'] = totalSeats;
   const newCols = COLUMNS.map((_, ci) => {
     const oc = (orig.columnData || [])[ci] || {};
     return { ...oc, ranges: cols[ci].map(rg => ({ ...((oc.ranges || [])[rg._o] || {}), startRoll: rg.startRoll, count: rg.count })) };
@@ -960,11 +991,16 @@ async function saveEdit() {
 
   if (!hasDb && !centerChanged) { editDirty = false; editDlg.close(); toast('কোনো পরিবর্তন নেই।'); return; }
 
+  // কক্ষের আইডি (ভবন_তলা_কক্ষ) বদলে গেলে সিট প্লান পেজের সাথে গরমিল হতে পারে — আগে জানিয়ে নেওয়া
+  if (['roomInfo.roomNumber', 'roomInfo.building', 'roomInfo.floor'].some(k => k in updates) &&
+      !confirm('কক্ষ নং / ভবন / তলা বদলানো হচ্ছে।\nসিট প্লান পেজ থেকে এই কক্ষ আবার সাবমিট করলে আলাদা নতুন কক্ষ তৈরি হবে।\nতবুও সংরক্ষণ করবেন?')) return;
+
   const btn = $('editSave');
   btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে…';
   try {
     if (hasDb) {
       updates.updatedAt = serverTimestamp();
+      if (auth.currentUser) { updates.updatedBy = auth.currentUser.uid; updates.updatedByEmail = auth.currentUser.email ?? null; }
       await updateDoc(doc(db, 'seatPlans', editId), updates);
       const fresh = await getDoc(doc(db, 'seatPlans', editId));
       const idx = plans.findIndex(p => p.id === editId);

@@ -190,14 +190,14 @@
   /* =====================================================
      ছাপার পাতা (আগের মতোই — Legal 8.5in x 14in)
      ===================================================== */
-  .page { background:#fff; width:var(--pw,8.5in); min-height:var(--ph,14in); margin:16px auto; padding:0.25in 0.3in; box-shadow:0 1px 2px rgba(23,34,59,.10), 0 10px 30px rgba(23,34,59,.14); border-radius:2px; page-break-after:always; }
+  .page { background:#fff; width:var(--pw,8.5in); min-height:var(--ph,14in); margin:16px auto; padding:0.18in 0.3in; box-shadow:0 1px 2px rgba(23,34,59,.10), 0 10px 30px rgba(23,34,59,.14); border-radius:2px; page-break-after:always; }
   .page.hidden { display:none; }
   .page { line-height:1.05; }
 
   .h1 { text-align:center; font-size:32pt; font-weight:700; margin:0 0 2pt; line-height:1.05; }
   .h2 { text-align:center; font-size:21pt; font-weight:500; margin:0; line-height:1.1; }
-  .row-between { display:flex; justify-content:space-between; font-size:19pt; font-weight:700; border-bottom:2.5pt solid #000; padding:4pt 0 2pt; margin-top:6pt; line-height:1.05; }
-  .venue { font-size:29pt; font-weight:700; margin:4pt 0 4pt; line-height:1.05; }
+  .row-between { display:flex; justify-content:space-between; font-size:19pt; font-weight:700; border-bottom:2.5pt solid #000; padding:2pt 0 1pt; margin-top:3pt; line-height:1.05; }
+  .venue { font-size:29pt; font-weight:700; margin:2pt 0 2pt; line-height:1.05; }
 
   .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:29pt; font-weight:700; padding:1pt 0; line-height:1.05; }
   table.info { width:100%; border-collapse:collapse; font-size:19pt; font-weight:600; }
@@ -207,9 +207,9 @@
   table.info td.side.r { text-align:right; }
   .building { width:44%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:20pt; font-weight:600; padding:1pt 4pt; line-height:1.05; }
 
-  table.sch { width:100%; border-collapse:collapse; margin-top:6pt; }
+  table.sch { width:100%; border-collapse:collapse; margin-top:3pt; }
   table.sch th { font-size:24pt; font-weight:700; padding:1pt 4pt; line-height:1.05; border-bottom:2.5pt solid #000; }
-  table.sch td { font-size:18pt; padding:0 4pt; height:9mm; line-height:1.05; border-bottom:1px solid #000; }
+  table.sch td { font-size:18pt; padding:0 4pt; height:7.5mm; line-height:1.05; border-bottom:1px solid #000; }
   table.sch tr.alt td { background:#F2F2F2; }
   table.sch td.name { text-align:left; }
   table.sch td.roll { text-align:center; font-weight:700; font-size:21pt; font-family:'Times New Roman',Times,serif; }
@@ -219,10 +219,10 @@
   table.sch th:nth-child(2) { text-align:center; }
   table.sch th:nth-child(3) { text-align:right; }
 
-  .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:1pt 8pt; margin-top:4pt; line-height:1.1; }
+  .total { background:var(--band); text-align:right; font-weight:700; font-size:25pt; padding:0 8pt; margin-top:2pt; line-height:1.1; }
 
   /* ---- সিটের ছক: কাঠের বেঞ্চ (প্রতি জোড়া সিট = একটি বেঞ্চ) ---- */
-  table.seat { width:100%; border-collapse:separate; border-spacing:0 2.2mm; table-layout:fixed; margin-top:2pt; }
+  table.seat { width:100%; border-collapse:separate; border-spacing:0 1.4mm; table-layout:fixed; margin-top:0; }
   table.seat tr { page-break-inside:avoid; }
   table.seat td {
     position:relative; height:10mm; padding:0 3pt; vertical-align:middle; text-align:center;
@@ -248,11 +248,11 @@
   table.seat td.rt { border-left:none; border-radius:0 7px 7px 0; }
   /* পায়া: বেঞ্চের দুই প্রান্তে */
   table.seat td.l::after,
-  table.seat td.rt::after { content:""; position:absolute; top:100%; width:3.2mm; height:1.6mm; background:#4A2A0C; border-radius:0 0 2px 2px; }
+  table.seat td.rt::after { content:""; position:absolute; top:100%; width:3.2mm; height:1mm; background:#4A2A0C; border-radius:0 0 2px 2px; }
   table.seat td.l::after  { left:9%; }
   table.seat td.rt::after { right:9%; }
   /* জোড়ার মাঝের পথ */
-  table.seat td.g { width:24pt; border:none; background:transparent !important; box-shadow:none; padding:0; }
+  table.seat td.g { width:14pt; border:none; background:transparent !important; box-shadow:none; padding:0; }
   table.seat td.g::after { display:none; }
   /* ফাঁকা সিট */
   table.seat td.blank { background:#F1E9DC !important; border-color:#9C8B73; border-bottom-width:3pt; border-style:dashed; box-shadow:none; }
@@ -269,8 +269,9 @@
   @media print {
     body { background:#fff; }
     .toolbar, .statusbar, #msg, .toast, dialog { display:none !important; }
-    .page { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0.25in 0.3in; }
+    .page { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0.18in 0.3in; }
     .page.hidden { display:none !important; }
+    .page[data-last] { page-break-after:auto; }
     * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   }
 </style>
@@ -280,7 +281,6 @@
 <header class="toolbar">
   <div class="brand">
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></span>
-    <span class="brand-text"><strong>সিট প্লান প্রিন্ট</strong><small id="examLabel"></small></span>
   </div>
 
   <div class="group nav" role="group" aria-label="কক্ষ বাছাই">
@@ -438,7 +438,6 @@ const ZSTEP = 0.1, ZMIN = 0.4, ZMAX = 1.6;
 const $ = id => document.getElementById(id);
 const roomSel = $('roomSelect');
 
-$('examLabel').textContent = CENTER.exam;
 
 // ---- টোস্ট বার্তা ----
 let toastTimer;
@@ -497,7 +496,28 @@ $('zoomOut').addEventListener('click', () => setZoom(currentZoom() - ZSTEP));
 $('zoomLabel').addEventListener('click', () => { zoomMode = 'fit'; fitPages(); });
 
 window.addEventListener('resize', fitPages);
-window.addEventListener('beforeprint', () => document.querySelectorAll('.page').forEach(p => { p.style.zoom = ''; }));
+// প্রিন্টের ঠিক আগে প্রতিটি পাতা মেপে কাগজের এক পাতায় আঁটিয়ে দেয় (বেঞ্চ বেশি হলে একটু ছোট হয়, কাটে না)
+function fitForPrint() {
+  const hStr = PAPERS[currentPaper][1], hv = parseFloat(hStr);
+  const H = hStr.endsWith('mm') ? hv * 3.7795 : hv * 96;
+  const avail = H - 0.08 * 96;                       // নিচে সামান্য নিরাপদ ফাঁক
+  let lastVisible = null, minZ = 1;
+  document.querySelectorAll('.page').forEach(p => {
+    const wasHidden = p.classList.contains('hidden');
+    p.style.zoom = ''; p.removeAttribute('data-last');
+    if (wasHidden) p.classList.remove('hidden');
+    const prevMin = p.style.minHeight; p.style.minHeight = '0';
+    const need = p.scrollHeight;                     // বিষয়বস্তু + উপর-নিচের প্যাডিং
+    p.style.minHeight = prevMin;
+    if (wasHidden) p.classList.add('hidden'); else lastVisible = p;
+    const z = need > 0 ? Math.min(1, avail / need) : 1;
+    p.style.zoom = z < 1 ? String(Math.floor(z * 1000) / 1000) : '';
+    if (!wasHidden) minZ = Math.min(minZ, z);
+  });
+  if (lastVisible) lastVisible.setAttribute('data-last', '1');   // শেষ পাতার পরে ফাঁকা পাতা আটকাতে
+  window.__printScale = minZ;
+}
+window.addEventListener('beforeprint', fitForPrint);
 window.addEventListener('afterprint', fitPages);
 
 // ---- মেসেজ কার্ড (ত্রুটি / খালি অবস্থা) ----
@@ -1009,7 +1029,6 @@ async function saveEdit() {
     if (centerChanged) {
       Object.assign(CENTER, cNew);
       try { localStorage.setItem('centerInfo', JSON.stringify(cNew)); } catch (_) {}
-      $('examLabel').textContent = CENTER.exam;
     }
     editDirty = false;
     editDlg.close();

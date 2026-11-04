@@ -148,6 +148,26 @@
     .rw.sch input:first-child { grid-column:1 / -1; }
   }
 
+  /* ---- টুলবার: সব এক লাইনে (বড় পর্দায়) ---- */
+  .toolbar { flex-wrap:nowrap; gap:8px; padding:8px 14px; }
+  .toolbar .group, .toolbar .search { flex:none; }
+  .group, .group.actions, .group.nav { align-items:center; gap:6px; }
+  .group.actions { margin-left:auto; }
+  .brand .mark { width:34px; height:34px; }
+  .toolbar select.room-sel { width:170px; text-overflow:ellipsis; }
+  .toolbar #paperSelect { width:88px; padding-right:24px; }
+  .search { width:150px; }
+  .search-kbd { display:none; }
+  .counter { min-width:44px; }
+  .zoom button.zoom-label { min-width:70px; }
+  .toolbar button { padding:0 11px; gap:6px; }
+  .toolbar button.icon { width:38px; padding:0; }
+  .seg button { padding:0 10px !important; gap:5px; }
+  @media (max-width:1230px) {
+    .toolbar { flex-wrap:wrap; }
+    .group.actions { margin-left:0; }
+  }
+
   /* ---- বর্তমান কক্ষের তথ্য-পট্টি ---- */
   .statusbar { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding:12px 16px 0; }
   .statusbar[hidden] { display:none; }
@@ -199,13 +219,25 @@
   .row-between { display:flex; justify-content:space-between; font-size:19pt; font-weight:700; border-bottom:2.5pt solid #000; padding:2pt 0 1pt; margin-top:3pt; line-height:1.05; }
   .venue { font-size:29pt; font-weight:700; margin:2pt 0 2pt; line-height:1.05; }
 
-  .plan-title { width:46%; margin:0 auto; text-align:center; background:var(--sky); border:1px solid #000; border-bottom:none; font-size:29pt; font-weight:700; padding:1pt 0; line-height:1.05; }
-  table.info { width:100%; border-collapse:collapse; font-size:19pt; font-weight:600; }
-  table.info td { border:1px solid #000; padding:2pt 8pt; line-height:1.05; }
-  table.info td.mid { width:30%; text-align:center; font-size:28pt; font-weight:700; }
-  table.info td.side { width:35%; }
-  table.info td.side.r { text-align:right; }
-  .building { width:44%; margin:0 auto; text-align:center; border:1px solid #000; border-top:none; font-size:20pt; font-weight:600; padding:1pt 4pt; line-height:1.05; }
+  /* ---- আসন পরিকল্পনা: শিরোনাম-ট্যাব + তথ্য-ছক + ভবন-ফিতা ---- */
+  .plan-title { width:44%; margin:0 auto; text-align:center; background:var(--navy); color:#fff; border:1.6pt solid var(--navy); border-bottom:none; border-radius:12px 12px 0 0; font-size:27pt; font-weight:700; letter-spacing:.6pt; padding:2pt 0 3pt; line-height:1.1; position:relative; }
+  .plan-title::before, .plan-title::after { content:""; position:absolute; top:50%; width:7pt; height:7pt; background:var(--gold-bright,#D6A24E); transform:translateY(-50%) rotate(45deg); }
+  .plan-title::before { left:14pt; }
+  .plan-title::after { right:14pt; }
+  table.info { width:100%; border-collapse:separate; border-spacing:0; border:1.6pt solid var(--navy); border-radius:10px; overflow:hidden; background:#fff; }
+  table.info td { padding:3pt 10pt; line-height:1.1; vertical-align:middle; }
+  table.info td.side { width:35%; background:#F4F7FC; }
+  table.info tr:first-child td.side { border-bottom:1pt solid #C9D2E3; }
+  table.info td.side:first-child { border-right:1pt solid #C9D2E3; }
+  table.info td.side:last-child { border-left:1pt solid #C9D2E3; }
+  table.info .kv { display:flex; align-items:baseline; justify-content:space-between; gap:8pt; }
+  table.info .k { font-size:16pt; font-weight:500; color:#4A5670; white-space:nowrap; }
+  table.info .v { font-size:21pt; font-weight:700; color:var(--navy); text-align:right; }
+  table.info .v em { font-style:normal; font-size:15pt; font-weight:600; color:#4A5670; }
+  table.info td.mid { width:30%; text-align:center; background:var(--navy); color:#fff; padding:2pt 6pt; }
+  table.info td.mid .k { display:block; font-size:14pt; font-weight:500; color:var(--gold-soft,#F1E2C3); letter-spacing:.4pt; }
+  table.info td.mid .dir { display:block; font-size:28pt; font-weight:700; line-height:1.1; }
+  .building { width:44%; margin:0 auto; text-align:center; background:var(--gold-soft,#F1E2C3); color:var(--navy); border:1.6pt solid var(--navy); border-top:none; border-radius:0 0 12px 12px; font-size:19pt; font-weight:700; padding:1pt 6pt 2pt; line-height:1.1; }
 
   table.sch { width:100%; border-collapse:collapse; margin-top:3pt; }
   table.sch th { font-size:24pt; font-weight:700; padding:1pt 4pt; line-height:1.05; border-bottom:2.5pt solid #000; }
@@ -287,20 +319,17 @@
     <button class="icon" id="btnPrev" disabled aria-label="আগের কক্ষ" title="আগের কক্ষ (←)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <label class="field grow">কক্ষ
-      <select id="roomSelect"></select>
-    </label>
+    <select id="roomSelect" class="room-sel" aria-label="কক্ষ বাছাই" title="কক্ষ বাছাই"></select>
     <button class="icon" id="btnNext" disabled aria-label="পরের কক্ষ" title="পরের কক্ষ (→)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <span class="counter" id="roomCounter" aria-live="polite"></span>
   </div>
 
-  <div class="field search" id="searchBox">
-    <label for="searchInput">খুঁজুন</label>
+  <div class="search" id="searchBox">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="searchInput" type="text" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="লোড হচ্ছে…" disabled
+      <input id="searchInput" type="text" aria-label="কক্ষ, রোল বা স্কুল খুঁজুন" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="লোড হচ্ছে…" disabled
              role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list">
       <kbd class="search-kbd" title="খুঁজতে / চাপুন">/</kbd>
       <button type="button" class="search-clear" id="searchClear" aria-label="মুছে ফেলুন" hidden>
@@ -311,14 +340,12 @@
   </div>
 
   <div class="group">
-    <label class="field">কাগজের মাপ
-      <select id="paperSelect">
-        <option value="legal">Legal (8.5×14 ইঞ্চি)</option>
-        <option value="a4">A4 (8.27×11.69 ইঞ্চি)</option>
-        <option value="letter">Letter (8.5×11 ইঞ্চি)</option>
-        <option value="folio">Folio (8.5×13 ইঞ্চি)</option>
-      </select>
-    </label>
+    <select id="paperSelect" aria-label="কাগজের মাপ" title="কাগজের মাপ">
+      <option value="legal" title="8.5×14 ইঞ্চি">Legal</option>
+      <option value="a4" title="8.27×11.69 ইঞ্চি">A4</option>
+      <option value="letter" title="8.5×11 ইঞ্চি">Letter</option>
+      <option value="folio" title="8.5×13 ইঞ্চি">Folio</option>
+    </select>
     <div class="zoom" role="group" aria-label="জুম">
       <button class="icon" id="zoomOut" aria-label="ছোট করুন" title="ছোট করুন">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
@@ -344,9 +371,8 @@
       <button id="btnThree" onclick="printType('three')">৩ কলাম <span class="badge" id="cntThree">০</span></button>
       <button id="btnAll" onclick="printAll()">সব কক্ষ <span class="badge" id="cntAll">০</span></button>
     </div>
-    <button onclick="window.location.href='seat-plan.html'">
+    <button class="icon" onclick="window.location.href='seat-plan.html'" title="ফিরে যান" aria-label="ফিরে যান">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      ফিরে যান
     </button>
   </div>
 </header>
@@ -1126,13 +1152,13 @@ function renderPlan(p) {
     <div class="plan-title">আসন পরিকল্পনা</div>
     <table class="info">
       <tr>
-        <td class="side">কক্ষ নংঃ ${esc(bn(r.roomNumber))} (${esc(r.gender)})</td>
-        <td class="mid" rowspan="2">${esc(r.direction)}</td>
-        <td class="side r">বিভাগঃ ${esc(r.department)}</td>
+        <td class="side"><div class="kv"><span class="k">কক্ষ নং</span><span class="v">${esc(bn(r.roomNumber))} <em>(${esc(r.gender)})</em></span></div></td>
+        <td class="mid" rowspan="2"><span class="k">বসার দিক</span><span class="dir">${esc(r.direction)}</span></td>
+        <td class="side"><div class="kv"><span class="k">বিভাগ</span><span class="v">${esc(r.department)}</span></div></td>
       </tr>
       <tr>
-        <td class="side">বেঞ্চের সংখ্যাঃ ${bn(r.benchCount || 0)} খানা</td>
-        <td class="side r">পরীক্ষার্থীর সংখ্যাঃ ${bn(totalStu)} জন</td>
+        <td class="side"><div class="kv"><span class="k">বেঞ্চের সংখ্যা</span><span class="v">${bn(r.benchCount || 0)} খানা</span></div></td>
+        <td class="side"><div class="kv"><span class="k">পরীক্ষার্থীর সংখ্যা</span><span class="v">${bn(totalStu)} জন</span></div></td>
       </tr>
     </table>
     <div class="building">${esc(r.building)} (${esc(floorText(r.floor))})</div>

@@ -721,6 +721,9 @@
                     <button type="button" class="print-btn no-print" onclick="openPrintPage()">
                         প্রিন্ট করুন
                     </button>
+                    <button type="button" class="print-btn no-print" id="editPrintBtn" onclick="openEditPage()" title="প্রিন্ট পেজে এই কক্ষের তথ্য এডিট করুন">
+                        এডিট
+                    </button>
                     <button type="button" class="print-btn no-print" id="localTestBtn" onclick="testDataCollection()">
                         ডেটা টেস্ট করুন
                     </button>
@@ -947,6 +950,23 @@
             }
             log('প্রিন্ট পেজে যাওয়া হচ্ছে: ' + PRINT_URL, 'info');
             window.open(PRINT_URL, '_blank');
+        }
+
+        // "এডিট" বাটন — প্রিন্ট পেজে এই কক্ষের এডিট ডায়ালগ খুলবে (সাবমিটের মতো একই কক্ষ-আইডি)
+        function openEditPage() {
+            const room = document.getElementById('roomNumber').value.trim();
+            if (!room) {
+                showAlert('আগে কক্ষ নম্বর দিন!', 'error');
+                return;
+            }
+            const roomId = [
+                document.getElementById('buildingSelect').value,
+                document.getElementById('floorSelect').value,
+                room
+            ].map(s => String(s).trim()).join('_').replace(/[\/\s]+/g, '-');
+            const url = PRINT_URL + '?room=' + encodeURIComponent(roomId) + '&edit=1';
+            log('এডিটের জন্য প্রিন্ট পেজে যাওয়া হচ্ছে: ' + url, 'info');
+            window.open(url, '_blank');
         }
 
         // টুলবারের অন্য বাটনগুলো — এখন আর printPage() কল হয় না, তাই প্রিন্ট ডায়ালগ দেখাবে না
